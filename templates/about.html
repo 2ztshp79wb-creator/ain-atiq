@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ain Atiq Health - About</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="brand-icon">🏥</span>
+                <span class="brand-name">Ain Atiq Health</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('about') }}" class="active">About</a></li>
+                <li><a href="{{ url_for('statistics') }}">Statistics</a></li>
+                <li><a href="{{ url_for('logout') }}" class="logout-link">Logout</a></li>
+            </ul>
+            <div class="nav-user">
+                <span class="user-avatar">👨‍⚕️</span>
+                <span class="user-role">Doctor</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="about-main">
+        <div class="about-hero">
+            <h1>About Ain Atiq Health Department</h1>
+            <p>المديرية الإقليمية للصحة عين عتيق</p>
+        </div>
+
+        <div class="about-content">
+            <div class="about-card">
+                <h2>🏥 Our Mission</h2>
+                <p>To provide exceptional healthcare services to the community of Ain Atiq and surrounding regions, ensuring accessible, high-quality medical care for all.</p>
+            </div>
+
+            <div class="about-card">
+                <h2>👨‍⚕️ Our Team</h2>
+                <p>With over 50 dedicated medical specialists across 17 different specialties, our team is committed to delivering comprehensive healthcare services.</p>
+            </div>
+
+            <div class="about-card">
+                <h2>📊 Our Impact</h2>
+                <p>Serving thousands of patients with modern facilities and advanced medical technology, setting new standards in healthcare excellence.</p>
+            </div>
+
+            <div class="about-card">
+                <h2>🏆 Our Values</h2>
+                <ul>
+                    <li>Compassion and Care</li>
+                    <li>Innovation and Excellence</li>
+                    <li>Patient-Centered Approach</li>
+                    <li>Community Health Focus</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

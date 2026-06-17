@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ain Atiq Health - Statistics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="brand-icon">🏥</span>
+                <span class="brand-name">Ain Atiq Health</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('statistics') }}" class="active">Statistics</a></li>
+                <li><a href="{{ url_for('logout') }}" class="logout-link">Logout</a></li>
+            </ul>
+            <div class="nav-user">
+                <span class="user-avatar">👨‍⚕️</span>
+                <span class="user-role">Doctor</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="stats-main">
+        <div class="stats-header">
+            <h1>📈 Patient Statistics</h1>
+            <p>Comprehensive analytics and insights</p>
+        </div>
+
+        
+        <div class="filter-section">
+            <h3>🔍 Filter Patients</h3>
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="filterSpecialty">Specialty</label>
+                    <select id="filterSpecialty">
+                        <option value="">All Specialties</option>
+                        <option value="Cardiologie">Cardiologie</option>
+                        <option value="Pédiatrie">Pédiatrie</option>
+                        <option value="Orthopédie">Orthopédie</option>
+                        <option value="Gynécologie">Gynécologie</option>
+                        <option value="Neurologie">Neurologie</option>
+                        <option value="Ophtalmologie">Ophtalmologie</option>
+                        <option value="Urologie">Urologie</option>
+                        <option value="Dermatologie">Dermatologie</option>
+                        <option value="Psychiatrie">Psychiatrie</option>
+                        <option value="Pneumologie">Pneumologie</option>
+                        <option value="Rhumatologie">Rhumatologie</option>
+                        <option value="Hématologie">Hématologie</option>
+                        <option value="Endocrinologie">Endocrinologie</option>
+                        <option value="Néphrologie">Néphrologie</option>
+                        <option value="Chirurgie générale">Chirurgie générale</option>
+                        <option value="Réanimation">Réanimation</option>
+                        <option value="Gastro-entérologie">Gastro-entérologie</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterAgeMin">Min Age</label>
+                    <input type="number" id="filterAgeMin" placeholder="0">
+                </div>
+                <div class="filter-group">
+                    <label for="filterAgeMax">Max Age</label>
+                    <input type="number" id="filterAgeMax" placeholder="120">
+                </div>
+                <div class="filter-group">
+                    <label for="filterSexe">Sexe</label>
+                    <select id="filterSexe">
+                        <option value="">All</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button id="applyFilterBtn" class="filter-btn">Apply Filters</button>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👨‍👩‍👧‍👦</div>
+                <div class="stat-content">
+                    <h3>{{ stats.total_patients if stats else 0 }}</h3>
+                    <p>Total Patients</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👨‍⚕️</div>
+                <div class="stat-content">
+                    <h3>{{ stats.male_count if stats else 0 }}</h3>
+                    <p>Male Patients</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👩‍⚕️</div>
+                <div class="stat-content">
+                    <h3>{{ stats.female_count if stats else 0 }}</h3>
+                    <p>Female Patients</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-content">
+                    <h3>{{ stats.total_visits if stats else 0 }}</h3>
+                    <p>Total Visits</p>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>Patients by Doctor</h3>
+                <div class="chart-container">
+                    <canvas id="doctorChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Patients by Specialty</h3>
+                <div class="chart-container">
+                    <canvas id="specialtyChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Patients by Age Group</h3>
+                <div class="chart-container">
+                    <canvas id="ageChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Visit Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="visitChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        
+        <div id="filterResults" class="filter-results" style="display:none;">
+            <h3>Filtered Patients</h3>
+            <div id="patientTableContainer"></div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        
+        const patientsByDoctor = JSON.parse('{{ patients_by_doctor|safe }}');
+        const ageGroups = JSON.parse('{{ age_groups|safe }}');
+        const visits = JSON.parse('{{ visits|safe }}');
+        const patientsBySpecialty = JSON.parse('{{ patients_by_specialty|safe }}');
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

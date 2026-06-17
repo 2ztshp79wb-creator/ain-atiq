@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ain Atiq Health Department - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="brand-icon">🏥</span>
+                <span class="brand-name">Ain Atiq Health</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('dashboard') }}" class="active">Dashboard</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('statistics') }}">Statistics</a></li>
+                <li><a href="{{ url_for('logout') }}" class="logout-link">Logout</a></li>
+            </ul>
+            <div class="nav-user">
+                <span class="user-avatar">👨‍⚕️</span>
+                <span class="user-role">Doctor</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1>📊 Dashboard Overview</h1>
+            <p>Welcome back! Here's your hospital at a glance.</p>
+        </div>
+
+        
+
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👨‍👩‍👧‍👦</div>
+                <div class="stat-content">
+                    <h3>{{ stats.total_patients if stats else 0 }}</h3>
+                    <p>Total Patients</p>
+                    <span class="stat-change positive">+12% this month</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👨‍⚕️</div>
+                <div class="stat-content">
+                    <h3>{{ stats.male_count if stats else 0 }}</h3>
+                    <p>Male Patients</p>
+                    <span class="stat-change">{{ (stats.male_count / stats.total_patients * 100)|round(1) if stats and stats.total_patients else 0 }}%</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👩‍⚕️</div>
+                <div class="stat-content">
+                    <h3>{{ stats.female_count if stats else 0 }}</h3>
+                    <p>Female Patients</p>
+                    <span class="stat-change">{{ (stats.female_count / stats.total_patients * 100)|round(1) if stats and stats.total_patients else 0 }}%</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-content">
+                    <h3>{{ stats.total_visits if stats else 0 }}</h3>
+                    <p>Total Visits (2 Years)</p>
+                    <span class="stat-change">Avg {{ stats.avg_visits|round(1) if stats and stats.avg_visits else 0 }} per patient</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎂</div>
+                <div class="stat-content">
+                    <h3>{{ stats.avg_age|round(1) if stats and stats.avg_age else 0 }}</h3>
+                    <p>Average Patient Age</p>
+                    <span class="stat-change">Age range: 0-120</span>
+                </div>
+            </div>
+        </div>
+
+        
+
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>Patients by Doctor</h3>
+                <div class="chart-container">
+                    <canvas id="doctorChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Patients by Age Group</h3>
+                <div class="chart-container">
+                    <canvas id="ageChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Visit Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="visitChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        
+
+
+        <div class="recent-activity">
+            <h3>📋 Quick Actions</h3>
+            <div class="action-grid">
+                <a href="{{ url_for('statistics') }}" class="action-btn">
+                    <span>📊</span>
+                    View Full Statistics
+                </a>
+                <a href="#" class="action-btn">
+                    <span>👤</span>
+                    Patient Directory
+                </a>
+                <a href="#" class="action-btn">
+                    <span>📅</span>
+                    Schedule Appointment
+                </a>
+                <a href="#" class="action-btn">
+                    <span>📝</span>
+                    Medical Records
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+       
+
+        
+        const patientsByDoctor = {{ patients_by_doctor|tojson|safe }};
+        const ageGroups = {{ age_groups|tojson|safe }};
+        const visits = {{ visits|tojson|safe }};
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
