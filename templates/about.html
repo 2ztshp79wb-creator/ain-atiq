@@ -1,19 +1,424 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ain Atiq Health - About</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ain Atiq Health Department - About</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <style>
+        /* ========================================
+           RESET & BASE
+        ======================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f7f5 0%, #e8f4f0 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ========================================
+           NAVBAR
+        ======================================== */
+        .navbar {
+            background: #ffffff;
+            padding: 0 36px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 72px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2a2a;
+            text-decoration: none;
+        }
+
+        .nav-brand .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #006A4E 0%, #00856A 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .nav-brand .brand-name {
+            color: #006A4E;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .nav-menu li a {
+            padding: 8px 22px;
+            text-decoration: none;
+            color: #3d5a4a;
+            font-weight: 500;
+            font-size: 15px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-menu li a:hover {
+            background: #f0f7f5;
+            color: #006A4E;
+        }
+
+        .nav-menu li a.active {
+            background: #006A4E;
+            color: #ffffff;
+        }
+
+        .nav-menu li a.logout-link {
+            color: #b91c1c;
+        }
+
+        .nav-menu li a.logout-link:hover {
+            background: #fef2f2;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 16px 6px 12px;
+            background: #f5f8f7;
+            border-radius: 30px;
+        }
+
+        .nav-user .user-avatar {
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        .nav-user .user-role {
+            font-size: 14px;
+            font-weight: 500;
+            color: #3d5a4a;
+        }
+
+        /* ========================================
+           MAIN CONTENT
+        ======================================== */
+        .about-main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 24px;
+            width: 100%;
+        }
+
+        /* ========================================
+           HERO SECTION
+        ======================================== */
+        .about-hero {
+            text-align: center;
+            padding: 56px 40px;
+            background: linear-gradient(135deg, #f0f7f5 0%, #e8f4f0 100%);
+            border-radius: 20px;
+            margin-bottom: 44px;
+            border: 1px solid #dcebe6;
+        }
+
+        .about-hero h1 {
+            font-size: 40px;
+            font-weight: 800;
+            color: #1a2a2a;
+            letter-spacing: -0.5px;
+        }
+
+        .about-hero .hero-subtitle {
+            font-size: 18px;
+            color: #006A4E;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .about-hero .hero-subtitle-ar {
+            font-size: 16px;
+            color: #6b8a7a;
+            font-weight: 400;
+            margin-top: 4px;
+        }
+
+        .about-hero .hero-divider {
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #006A4E, #00856A);
+            border-radius: 2px;
+            margin: 18px auto 0;
+        }
+
+        /* ========================================
+           ABOUT GRID
+        ======================================== */
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 28px;
+            margin-bottom: 44px;
+        }
+
+        .about-card {
+            background: #ffffff;
+            padding: 32px 28px;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eef4f1;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .about-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 40px rgba(0, 60, 45, 0.08);
+        }
+
+        .about-card .card-icon {
+            font-size: 28px;
+            font-weight: 300;
+            color: #006A4E;
+            margin-bottom: 12px;
+            display: inline-block;
+            background: #f0f7f5;
+            width: 52px;
+            height: 52px;
+            line-height: 52px;
+            text-align: center;
+            border-radius: 14px;
+        }
+
+        .about-card h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2a2a;
+            margin-bottom: 10px;
+        }
+
+        .about-card p {
+            color: #3d5a4a;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        .about-card ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 8px;
+        }
+
+        .about-card ul li {
+            padding: 8px 0;
+            color: #3d5a4a;
+            border-bottom: 1px solid #f0f7f5;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .about-card ul li:last-child {
+            border-bottom: none;
+        }
+
+        .about-card ul li .li-icon {
+            color: #006A4E;
+            font-weight: 300;
+            font-size: 16px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* ========================================
+           STATS SECTION
+        ======================================== */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 24px;
+            background: #ffffff;
+            padding: 40px 32px;
+            border-radius: 18px;
+            border: 1px solid #eef4f1;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item .stat-number {
+            font-size: 36px;
+            font-weight: 800;
+            color: #006A4E;
+            letter-spacing: -0.5px;
+        }
+
+        .stat-item .stat-label {
+            font-size: 14px;
+            color: #6b8a7a;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        .stat-divider {
+            width: 1px;
+            background: #e8efec;
+        }
+
+        /* ========================================
+           FOOTER
+        ======================================== */
+        .about-footer {
+            margin-top: 44px;
+            text-align: center;
+            padding: 24px 20px;
+            border-top: 1px solid #e8efec;
+            color: #8aa89a;
+            font-size: 14px;
+        }
+
+        .about-footer .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .about-footer .footer-links a {
+            color: #6b8a7a;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: color 0.2s ease;
+        }
+
+        .about-footer .footer-links a:hover {
+            color: #006A4E;
+        }
+
+        .about-footer .version {
+            font-size: 12px;
+            color: #b5c9be;
+            margin-top: 4px;
+        }
+
+        /* ========================================
+           RESPONSIVE
+        ======================================== */
+        @media (max-width: 820px) {
+            .nav-container {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 12px 0;
+                gap: 12px;
+            }
+
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 4px;
+                width: 100%;
+            }
+
+            .nav-menu li a {
+                padding: 6px 16px;
+                font-size: 14px;
+            }
+
+            .about-hero h1 {
+                font-size: 30px;
+            }
+
+            .about-hero {
+                padding: 36px 20px;
+            }
+
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 28px 18px;
+            }
+
+            .stat-divider {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 0 16px;
+            }
+
+            .about-main {
+                padding: 24px 12px;
+            }
+
+            .about-hero h1 {
+                font-size: 26px;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-section {
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+                padding: 20px 12px;
+            }
+
+            .stat-item .stat-number {
+                font-size: 28px;
+            }
+
+            .about-footer .footer-links {
+                gap: 14px;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
 </head>
 <body>
+
+    <!-- ==========================================
+    NAVBAR
+    ========================================== -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-brand">
-                <span class="brand-icon">🏥</span>
+            <a href="{{ url_for('dashboard') }}" class="nav-brand">
+                <span class="brand-icon">+</span>
                 <span class="brand-name">Ain Atiq Health</span>
-            </div>
+            </a>
             <ul class="nav-menu">
                 <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
                 <li><a href="{{ url_for('patients') }}">Patients</a></li>
@@ -22,46 +427,126 @@
                 <li><a href="{{ url_for('logout') }}" class="logout-link">Logout</a></li>
             </ul>
             <div class="nav-user">
-                <span class="user-avatar">👨‍⚕️</span>
+                <span class="user-avatar">&#128100;</span>
                 <span class="user-role">Doctor</span>
             </div>
         </div>
     </nav>
 
+    <!-- ==========================================
+    MAIN CONTENT
+    ========================================== -->
     <main class="about-main">
-        <div class="about-hero">
+
+        <!-- HERO SECTION -->
+        <section class="about-hero">
             <h1>About Ain Atiq Health Department</h1>
-            <p>المديرية الإقليمية للصحة عين عتيق</p>
-        </div>
+            <p class="hero-subtitle">المديرية الإقليمية للصحة عين عتيق</p>
+            <p class="hero-subtitle-ar">Committed to Excellence in Healthcare</p>
+            <div class="hero-divider"></div>
+        </section>
 
-        <div class="about-content">
+        <!-- ABOUT GRID -->
+        <div class="about-grid">
+
+            <!-- Card 1: Mission -->
             <div class="about-card">
+                <span class="card-icon">&#127919;</span>
                 <h2>Our Mission</h2>
-                <p>To provide exceptional healthcare services to the community of Ain Atiq and surrounding regions, ensuring accessible, high-quality medical care for all.</p>
+                <p>
+                    To provide exceptional healthcare services to the community of Ain Atiq 
+                    and surrounding regions, ensuring accessible, high-quality medical care 
+                    for all.
+                </p>
             </div>
 
+            <!-- Card 2: Team -->
             <div class="about-card">
+                <span class="card-icon">&#128101;</span>
                 <h2>Our Team</h2>
-                <p>With over 50 dedicated medical specialists across 17 different specialties, our team is committed to delivering comprehensive healthcare services.</p>
+                <p>
+                    With over 50 dedicated medical specialists across 17 different specialties, 
+                    our team is committed to delivering comprehensive healthcare services 
+                    with compassion and expertise.
+                </p>
             </div>
 
+            <!-- Card 3: Impact -->
             <div class="about-card">
+                <span class="card-icon">&#128200;</span>
                 <h2>Our Impact</h2>
-                <p>Serving thousands of patients with modern facilities and advanced medical technology, setting new standards in healthcare excellence.</p>
+                <p>
+                    Serving thousands of patients with modern facilities and advanced medical 
+                    technology, setting new standards in healthcare excellence across the region.
+                </p>
             </div>
 
+            <!-- Card 4: Values -->
             <div class="about-card">
+                <span class="card-icon">&#127942;</span>
                 <h2>Our Values</h2>
                 <ul>
-                    <li>Compassion and Care</li>
-                    <li>Innovation and Excellence</li>
-                    <li>Patient-Centered Approach</li>
-                    <li>Community Health Focus</li>
+                    <li>
+                        <span class="li-icon">&#10003;</span>
+                        Compassion and Care
+                    </li>
+                    <li>
+                        <span class="li-icon">&#10003;</span>
+                        Innovation and Excellence
+                    </li>
+                    <li>
+                        <span class="li-icon">&#10003;</span>
+                        Patient-Centered Approach
+                    </li>
+                    <li>
+                        <span class="li-icon">&#10003;</span>
+                        Community Health Focus
+                    </li>
                 </ul>
             </div>
+
         </div>
+
+        <!-- STATS SECTION -->
+        <div class="stats-section">
+            <div class="stat-item">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Medical Specialists</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-number">17</div>
+                <div class="stat-label">Medical Specialties</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-number">1000+</div>
+                <div class="stat-label">Patients Served</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Emergency Care</div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="about-footer">
+            <div class="footer-links">
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('patients') }}">Patients</a>
+                <a href="{{ url_for('statistics') }}">Statistics</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+            <p>&copy; 2026 Ain Atiq Health Department. All rights reserved.</p>
+            <p class="version">Version 2.0.1</p>
+        </div>
+
     </main>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        console.log('Ain Atiq Health Department - About page loaded');
+    </script>
+
 </body>
 </html>

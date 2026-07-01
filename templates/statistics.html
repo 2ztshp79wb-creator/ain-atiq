@@ -1,19 +1,514 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ain Atiq Health - Statistics</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ain Atiq Health Department - Statistics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <style>
+        /* ========================================
+           RESET & BASE
+        ======================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f7f5 0%, #e8f4f0 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ========================================
+           NAVBAR
+        ======================================== */
+        .navbar {
+            background: #ffffff;
+            padding: 0 36px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 72px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2a2a;
+            text-decoration: none;
+        }
+
+        .nav-brand .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #006A4E 0%, #00856A 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .nav-brand .brand-name {
+            color: #006A4E;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .nav-menu li a {
+            padding: 8px 22px;
+            text-decoration: none;
+            color: #3d5a4a;
+            font-weight: 500;
+            font-size: 15px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-menu li a:hover {
+            background: #f0f7f5;
+            color: #006A4E;
+        }
+
+        .nav-menu li a.active {
+            background: #006A4E;
+            color: #ffffff;
+        }
+
+        .nav-menu li a.logout-link {
+            color: #b91c1c;
+        }
+
+        .nav-menu li a.logout-link:hover {
+            background: #fef2f2;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 16px 6px 12px;
+            background: #f5f8f7;
+            border-radius: 30px;
+        }
+
+        .nav-user .user-avatar {
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        .nav-user .user-role {
+            font-size: 14px;
+            font-weight: 500;
+            color: #3d5a4a;
+        }
+
+        /* ========================================
+           MAIN CONTENT
+        ======================================== */
+        .stats-main {
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 36px 24px;
+            width: 100%;
+        }
+
+        .stats-header {
+            margin-bottom: 32px;
+        }
+
+        .stats-header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a2a2a;
+            letter-spacing: -0.5px;
+        }
+
+        .stats-header p {
+            color: #6b8a7a;
+            font-size: 16px;
+            margin-top: 4px;
+        }
+
+        /* ========================================
+           STATS CARDS
+        ======================================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            padding: 22px 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eef4f1;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 24px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f7f5;
+            border-radius: 12px;
+            color: #006A4E;
+            font-weight: 300;
+            flex-shrink: 0;
+        }
+
+        .stat-card .stat-content h3 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a2a2a;
+            line-height: 1.2;
+        }
+
+        .stat-card .stat-content p {
+            font-size: 13px;
+            color: #6b8a7a;
+            font-weight: 500;
+        }
+
+        /* ========================================
+           FILTER SECTION
+        ======================================== */
+        .filter-section {
+            background: #ffffff;
+            padding: 20px 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eef4f1;
+            margin-bottom: 32px;
+        }
+
+        .filter-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a2a2a;
+            margin-bottom: 14px;
+        }
+
+        .filter-section .filter-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            align-items: flex-end;
+        }
+
+        .filter-section .filter-controls .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 130px;
+        }
+
+        .filter-section .filter-controls .filter-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3d5a4a;
+        }
+
+        .filter-section .filter-controls .filter-group select,
+        .filter-section .filter-controls .filter-group input {
+            padding: 8px 12px;
+            border: 2px solid #e0e8e5;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            transition: border-color 0.2s ease;
+        }
+
+        .filter-section .filter-controls .filter-group select:focus,
+        .filter-section .filter-controls .filter-group input:focus {
+            outline: none;
+            border-color: #006A4E;
+            box-shadow: 0 0 0 3px rgba(0, 106, 78, 0.08);
+        }
+
+        .filter-section .filter-controls .filter-btn {
+            padding: 10px 28px;
+            background: #006A4E;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+        }
+
+        .filter-section .filter-controls .filter-btn:hover {
+            background: #004d3a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 106, 78, 0.20);
+        }
+
+        /* ========================================
+           CHARTS GRID
+        ======================================== */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-card {
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eef4f1;
+        }
+
+        .chart-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a2a2a;
+            margin-bottom: 16px;
+        }
+
+        .chart-card .chart-container {
+            height: 250px;
+            position: relative;
+        }
+
+        /* ========================================
+           FILTER RESULTS
+        ======================================== */
+        .filter-results {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eef4f1;
+            padding: 24px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .filter-results h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a2a2a;
+            margin-bottom: 16px;
+        }
+
+        .filter-results .patient-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .filter-results .patient-table th {
+            background: #f8fbf9;
+            color: #1a2a2a;
+            font-weight: 600;
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 2px solid #e8efec;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-results .patient-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #eef4f1;
+            color: #3d5a4a;
+        }
+
+        .filter-results .patient-table tr:hover {
+            background: #f8fbf9;
+        }
+
+        .filter-results .patient-table .visit-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .filter-results .patient-table .visit-badge.low {
+            background: #e8efec;
+            color: #3d5a4a;
+        }
+
+        .filter-results .patient-table .visit-badge.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .filter-results .patient-table .visit-badge.high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .filter-results .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b8a7a;
+        }
+
+        .filter-results .no-results .icon {
+            font-size: 36px;
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 300;
+        }
+
+        /* ========================================
+           FOOTER
+        ======================================== */
+        .stats-footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #e8efec;
+            color: #8aa89a;
+            font-size: 14px;
+        }
+
+        .stats-footer .version {
+            font-size: 12px;
+            color: #b5c9be;
+            margin-top: 4px;
+        }
+
+        /* ========================================
+           RESPONSIVE
+        ======================================== */
+        @media (max-width: 820px) {
+            .nav-container {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 12px 0;
+                gap: 12px;
+            }
+
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 4px;
+                width: 100%;
+            }
+
+            .nav-menu li a {
+                padding: 6px 16px;
+                font-size: 14px;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-section .filter-controls {
+                flex-direction: column;
+            }
+
+            .filter-section .filter-controls .filter-group {
+                min-width: 100%;
+            }
+
+            .filter-section .filter-controls .filter-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .stats-header h1 {
+                font-size: 26px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 0 16px;
+            }
+
+            .stats-main {
+                padding: 20px 12px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 16px;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .stat-card .stat-content h3 {
+                font-size: 22px;
+            }
+
+            .filter-results .patient-table {
+                font-size: 12px;
+            }
+
+            .filter-results .patient-table th,
+            .filter-results .patient-table td {
+                padding: 6px 8px;
+            }
+        }
+    </style>
 </head>
 <body>
+
+    <!-- ==========================================
+    NAVBAR
+    ========================================== -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-brand">
-                <span class="brand-icon">🏥</span>
+            <a href="{{ url_for('dashboard') }}" class="nav-brand">
+                <span class="brand-icon">+</span>
                 <span class="brand-name">Ain Atiq Health</span>
-            </div>
+            </a>
             <ul class="nav-menu">
                 <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
                 <li><a href="{{ url_for('patients') }}">Patients</a></li>
@@ -22,19 +517,70 @@
                 <li><a href="{{ url_for('logout') }}" class="logout-link">Logout</a></li>
             </ul>
             <div class="nav-user">
-                <span class="user-avatar">👨‍⚕️</span>
+                <span class="user-avatar">&#128100;</span>
                 <span class="user-role">Doctor</span>
             </div>
         </div>
     </nav>
 
+    <!-- ==========================================
+    MAIN CONTENT
+    ========================================== -->
     <main class="stats-main">
+
+        <!-- HEADER -->
         <div class="stats-header">
             <h1>Patient Statistics</h1>
             <p>Comprehensive analytics and insights</p>
         </div>
 
-        <!-- Filter Section -->
+        <!-- STATS CARDS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">&#128101;</div>
+                <div class="stat-content">
+                    <h3>{{ stats.total_patients if stats else 0 }}</h3>
+                    <p>Total Patients</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">&#128102;</div>
+                <div class="stat-content">
+                    <h3>{{ stats.male_count if stats else 0 }}</h3>
+                    <p>Male Patients</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">&#128103;</div>
+                <div class="stat-content">
+                    <h3>{{ stats.female_count if stats else 0 }}</h3>
+                    <p>Female Patients</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">&#128197;</div>
+                <div class="stat-content">
+                    <h3>{{ stats.total_visits if stats else 0 }}</h3>
+                    <p>Total Visits</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">&#127874;</div>
+                <div class="stat-content">
+                    <h3>{{ stats.avg_age|round(1) if stats and stats.avg_age else 0 }}</h3>
+                    <p>Average Age</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">&#128200;</div>
+                <div class="stat-content">
+                    <h3>{{ stats.avg_visits|round(1) if stats and stats.avg_visits else 0 }}</h3>
+                    <p>Average Visits</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTER SECTION -->
         <div class="filter-section">
             <h3>Filter Patients</h3>
             <div class="filter-controls">
@@ -63,14 +609,14 @@
                 </div>
                 <div class="filter-group">
                     <label for="filterAgeMin">Min Age</label>
-                    <input type="number" id="filterAgeMin" placeholder="0">
+                    <input type="number" id="filterAgeMin" placeholder="0" />
                 </div>
                 <div class="filter-group">
                     <label for="filterAgeMax">Max Age</label>
-                    <input type="number" id="filterAgeMax" placeholder="120">
+                    <input type="number" id="filterAgeMax" placeholder="120" />
                 </div>
                 <div class="filter-group">
-                    <label for="filterSexe">Sexe</label>
+                    <label for="filterSexe">Sex</label>
                     <select id="filterSexe">
                         <option value="">All</option>
                         <option value="M">Male</option>
@@ -83,39 +629,7 @@
             </div>
         </div>
 
-        <!-- Statistics Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">👨‍👩‍👧‍👦</div>
-                <div class="stat-content">
-                    <h3>{{ stats.total_patients if stats else 0 }}</h3>
-                    <p>Total Patients</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">👨</div>
-                <div class="stat-content">
-                    <h3>{{ stats.male_count if stats else 0 }}</h3>
-                    <p>Male Patients</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">👩</div>
-                <div class="stat-content">
-                    <h3>{{ stats.female_count if stats else 0 }}</h3>
-                    <p>Female Patients</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">📅</div>
-                <div class="stat-content">
-                    <h3>{{ stats.total_visits if stats else 0 }}</h3>
-                    <p>Total Visits</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts Grid -->
+        <!-- CHARTS GRID -->
         <div class="charts-grid">
             <div class="chart-card">
                 <h3>Patients by Doctor</h3>
@@ -123,18 +637,21 @@
                     <canvas id="doctorChart"></canvas>
                 </div>
             </div>
+
             <div class="chart-card">
                 <h3>Patients by Specialty</h3>
                 <div class="chart-container">
                     <canvas id="specialtyChart"></canvas>
                 </div>
             </div>
+
             <div class="chart-card">
                 <h3>Patients by Age Group</h3>
                 <div class="chart-container">
                     <canvas id="ageChart"></canvas>
                 </div>
             </div>
+
             <div class="chart-card">
                 <h3>Visit Distribution</h3>
                 <div class="chart-container">
@@ -143,21 +660,393 @@
             </div>
         </div>
 
-        <!-- Filter Results -->
-        <div id="filterResults" class="filter-results" style="display:none;">
+        <!-- FILTER RESULTS -->
+        <div id="filterResults" class="filter-results">
             <h3>Filtered Patients</h3>
             <div id="patientTableContainer"></div>
         </div>
+
+        <!-- FOOTER -->
+        <div class="stats-footer">
+            <p>&copy; 2026 Ain Atiq Health Department. All rights reserved.</p>
+            <p class="version">Version 2.0.1</p>
+        </div>
+
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // Pass data from Flask to JavaScript
-        const patientsByDoctor = JSON.parse('{{ patients_by_doctor|safe }}');
-        const ageGroups = JSON.parse('{{ age_groups|safe }}');
-        const visits = JSON.parse('{{ visits|safe }}');
-        const patientsBySpecialty = JSON.parse('{{ patients_by_specialty|safe }}');
+    <!-- ==========================================
+    CHARTS LIBRARY & SCRIPTS
+    ========================================== -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js">
     </script>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // ============================================
+        // PASS DATA FROM FLASK TO JAVASCRIPT
+        // ============================================
+
+        var patientsByDoctor = JSON.parse('{{ patients_by_doctor|safe }}');
+        var ageGroups = JSON.parse('{{ age_groups|safe }}');
+        var visits = JSON.parse('{{ visits|safe }}');
+        var patientsBySpecialty = JSON.parse('{{ patients_by_specialty|safe }}');
+
+        // ============================================
+        // HELPER FUNCTION - GET COLORS
+        // ============================================
+        function getColors(count) {
+            var colors = [
+                '#006A4E', '#00856A', '#00A38A', '#4CAF50',
+                '#66BB6A', '#81C784', '#A5D6A7', '#C8E6C9',
+                '#2E7D32', '#388E3C', '#43A047', '#4CAF50'
+            ];
+            var result = [];
+            for (var i = 0; i < count; i++) {
+                result.push(colors[i % colors.length]);
+            }
+            return result;
+        }
+
+        // ============================================
+        // DOCTOR CHART
+        // ============================================
+        var doctorChartEl = document.getElementById('doctorChart');
+        if (doctorChartEl && patientsByDoctor && patientsByDoctor.length > 0) {
+            var labels = [];
+            var data = [];
+
+            for (var i = 0; i < patientsByDoctor.length; i++) {
+                var d = patientsByDoctor[i];
+                var firstName = d.doctor_first || '';
+                var lastName = d.doctor_last || '';
+                var fullName = (firstName + ' ' + lastName).trim() || 'Unassigned';
+                labels.push(fullName);
+                data.push(d.patient_count || 0);
+            }
+
+            var colors = getColors(data.length);
+
+            new Chart(doctorChartEl, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Patients',
+                        data: data,
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        barPercentage: 0.7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 30,
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // SPECIALTY CHART
+        // ============================================
+        var specialtyChartEl = document.getElementById('specialtyChart');
+        if (specialtyChartEl && patientsBySpecialty && patientsBySpecialty.length > 0) {
+            var labels = [];
+            var data = [];
+
+            for (var i = 0; i < patientsBySpecialty.length; i++) {
+                var s = patientsBySpecialty[i];
+                labels.push(s.specialty || 'Unknown');
+                data.push(s.patient_count || 0);
+            }
+
+            var colors = getColors(data.length);
+
+            new Chart(specialtyChartEl, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Patients',
+                        data: data,
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        barPercentage: 0.7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // AGE GROUP CHART
+        // ============================================
+        var ageChartEl = document.getElementById('ageChart');
+        if (ageChartEl && ageGroups && ageGroups.length > 0) {
+            var labels = [];
+            var data = [];
+
+            for (var i = 0; i < ageGroups.length; i++) {
+                var g = ageGroups[i];
+                labels.push(g.age_group || 'Unknown');
+                data.push(g.count || 0);
+            }
+
+            var colors = getColors(data.length);
+
+            new Chart(ageChartEl, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 12,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        // ============================================
+        // VISIT CHART
+        // ============================================
+        var visitChartEl = document.getElementById('visitChart');
+        if (visitChartEl && visits && visits.length > 0) {
+            var labels = [];
+            var data = [];
+
+            for (var i = 0; i < visits.length; i++) {
+                var v = visits[i];
+                labels.push(v.visits_2_years || 0);
+                data.push(v.count || 0);
+            }
+
+            new Chart(visitChartEl, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Patients',
+                        data: data,
+                        borderColor: '#006A4E',
+                        backgroundColor: 'rgba(0, 106, 78, 0.10)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#006A4E',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Visits (2 years)',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Patients',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // AJAX FILTER FUNCTIONALITY
+        // ============================================
+        var applyFilterBtn = document.getElementById('applyFilterBtn');
+        if (applyFilterBtn) {
+            applyFilterBtn.addEventListener('click', function() {
+                var specialty = document.getElementById('filterSpecialty').value || '';
+                var ageMin = document.getElementById('filterAgeMin').value || '';
+                var ageMax = document.getElementById('filterAgeMax').value || '';
+                var sexe = document.getElementById('filterSexe').value || '';
+
+                var filterData = {
+                    specialty: specialty,
+                    age_min: ageMin,
+                    age_max: ageMax,
+                    sexe: sexe
+                };
+
+                fetch('/api/patients/filter', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(filterData)
+                    })
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(patients) {
+                        displayFilterResults(patients);
+                    })
+                    .catch(function(error) {
+                        console.error('Error filtering patients:', error);
+                        alert('Error applying filters. Please try again.');
+                    });
+            });
+        }
+
+        function displayFilterResults(patients) {
+            var container = document.getElementById('patientTableContainer');
+            var resultsDiv = document.getElementById('filterResults');
+
+            if (!container || !resultsDiv) return;
+
+            resultsDiv.style.display = 'block';
+
+            if (!patients || patients.length === 0) {
+                container.innerHTML = '<div class="no-results"><span class="icon">&#128269;</span><p>No patients found matching the criteria.</p></div>';
+                return;
+            }
+
+            var tableHTML = `
+                <table class="patient-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Age</th>
+                            <th>Sex</th>
+                            <th>Visits</th>
+                            <th>Doctor</th>
+                            <th>Specialty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            for (var i = 0; i < patients.length; i++) {
+                var p = patients[i];
+                var visitClass = p.visits_2_years > 10 ? 'high' : (p.visits_2_years > 5 ? 'medium' : 'low');
+                tableHTML += `
+                    <tr>
+                        <td>${p.patient_id || 'N/A'}</td>
+                        <td>${p.first_name || 'N/A'}</td>
+                        <td>${p.last_name || 'N/A'}</td>
+                        <td>${p.age || 'N/A'}</td>
+                        <td>${p.sexe || 'N/A'}</td>
+                        <td><span class="visit-badge ${visitClass}">${p.visits_2_years || 0}</span></td>
+                        <td>${p.doctor_first || ''} ${p.doctor_last || ''}</td>
+                        <td>${p.specialty || 'N/A'}</td>
+                    </tr>
+                `;
+            }
+
+            tableHTML += `</tbody></table>`;
+            tableHTML += `<p style="margin-top:12px;color:#6b8a7a;font-size:14px;">Showing ${patients.length} patient(s)</p>`;
+
+            container.innerHTML = tableHTML;
+        }
+
+        console.log('Ain Atiq Health Department - Statistics page loaded');
+        console.log('Charts initialized successfully');
+    </script>
+
 </body>
 </html>

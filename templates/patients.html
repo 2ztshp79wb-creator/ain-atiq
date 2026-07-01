@@ -1,19 +1,707 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ain Atiq Health - Patients</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ain Atiq Health Department - Patients</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <style>
+        /* ========================================
+           RESET & BASE
+        ======================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f7f5 0%, #e8f4f0 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ========================================
+           NAVBAR
+        ======================================== */
+        .navbar {
+            background: #ffffff;
+            padding: 0 36px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 72px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2a2a;
+            text-decoration: none;
+        }
+
+        .nav-brand .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #006A4E 0%, #00856A 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .nav-brand .brand-name {
+            color: #006A4E;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .nav-menu li a {
+            padding: 8px 22px;
+            text-decoration: none;
+            color: #3d5a4a;
+            font-weight: 500;
+            font-size: 15px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-menu li a:hover {
+            background: #f0f7f5;
+            color: #006A4E;
+        }
+
+        .nav-menu li a.active {
+            background: #006A4E;
+            color: #ffffff;
+        }
+
+        .nav-menu li a.logout-link {
+            color: #b91c1c;
+        }
+
+        .nav-menu li a.logout-link:hover {
+            background: #fef2f2;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 16px 6px 12px;
+            background: #f5f8f7;
+            border-radius: 30px;
+        }
+
+        .nav-user .user-avatar {
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        .nav-user .user-role {
+            font-size: 14px;
+            font-weight: 500;
+            color: #3d5a4a;
+        }
+
+        /* ========================================
+           MAIN CONTENT
+        ======================================== */
+        .patients-main {
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 36px 24px;
+            width: 100%;
+        }
+
+        .patients-header {
+            margin-bottom: 28px;
+        }
+
+        .patients-header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a2a2a;
+            letter-spacing: -0.5px;
+        }
+
+        .patients-header p {
+            color: #6b8a7a;
+            font-size: 16px;
+            margin-top: 4px;
+        }
+
+        /* ========================================
+           FILTER SUMMARY
+        ======================================== */
+        .filter-summary {
+            background: #f0f7f5;
+            border: 1px solid #dcebe6;
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .filter-summary .summary-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #006A4E;
+            color: #ffffff;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .filter-summary .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-summary .filter-tag {
+            background: #ffffff;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            border: 1px solid #d4e8e0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-summary .filter-tag a {
+            color: #b91c1c;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .filter-summary .filter-tag a:hover {
+            color: #991b1b;
+        }
+
+        .filter-summary .clear-filters {
+            color: #006A4E;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            margin-left: auto;
+        }
+
+        .filter-summary .clear-filters:hover {
+            text-decoration: underline;
+        }
+
+        /* ========================================
+           FILTER SECTION
+        ======================================== */
+        .filter-section {
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eef4f1;
+            margin-bottom: 32px;
+        }
+
+        .filter-section .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .filter-section .filter-header h3 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1a2a2a;
+        }
+
+        .filter-section .filter-header .toggle-filters {
+            background: none;
+            border: none;
+            color: #006A4E;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px 12px;
+            border-radius: 8px;
+        }
+
+        .filter-section .filter-header .toggle-filters:hover {
+            background: #f0f7f5;
+        }
+
+        .filter-section .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .filter-section .filter-grid .filter-group {
+            background: #f8fbf9;
+            border-radius: 12px;
+            padding: 14px 16px;
+            border: 1px solid #e8efec;
+        }
+
+        .filter-section .filter-grid .filter-group > label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #006A4E;
+            display: block;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-section .filter-grid .filter-group .filter-field {
+            margin-bottom: 8px;
+        }
+
+        .filter-section .filter-grid .filter-group .filter-field:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-section .filter-grid .filter-group .filter-field .filter-number {
+            display: inline-block;
+            background: #006A4E;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 700;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .filter-section .filter-grid .filter-group .filter-field input,
+        .filter-section .filter-grid .filter-group .filter-field select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e0e8e5;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            transition: border-color 0.2s ease;
+        }
+
+        .filter-section .filter-grid .filter-group .filter-field input:focus,
+        .filter-section .filter-grid .filter-group .filter-field select:focus {
+            outline: none;
+            border-color: #006A4E;
+            box-shadow: 0 0 0 3px rgba(0, 106, 78, 0.08);
+        }
+
+        .filter-section .filter-grid .filter-group .filter-field small {
+            display: block;
+            font-size: 11px;
+            color: #8aa89a;
+            margin-top: 2px;
+        }
+
+        .filter-section .filter-grid .filter-group .filter-field.dual .dual-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-section .filter-grid .filter-group .filter-field.dual .dual-input input {
+            flex: 1;
+        }
+
+        .filter-section .filter-grid .filter-group .filter-field.dual .dual-input span {
+            color: #6b8a7a;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .filter-section .filter-actions {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid #e8efec;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .filter-section .filter-actions .sort-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-section .filter-actions .sort-controls label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3d5a4a;
+        }
+
+        .filter-section .filter-actions .sort-controls select {
+            padding: 6px 12px;
+            border: 2px solid #e0e8e5;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+        }
+
+        .filter-section .filter-actions .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-section .filter-actions .action-buttons .apply-filters {
+            padding: 10px 32px;
+            background: #006A4E;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .filter-section .filter-actions .action-buttons .apply-filters:hover {
+            background: #004d3a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 106, 78, 0.20);
+        }
+
+        .filter-section .filter-actions .action-buttons .reset-filters {
+            padding: 10px 24px;
+            background: #f0f7f5;
+            color: #3d5a4a;
+            border: 2px solid #e0e8e5;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .filter-section .filter-actions .action-buttons .reset-filters:hover {
+            background: #e8efec;
+        }
+
+        /* ========================================
+           RESULTS TABLE
+        ======================================== */
+        .results-section {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eef4f1;
+            overflow: hidden;
+        }
+
+        .results-section .results-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #eef4f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .results-section .results-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a2a2a;
+        }
+
+        .results-section .results-header .result-count {
+            font-size: 14px;
+            color: #6b8a7a;
+            font-weight: 500;
+        }
+
+        .results-section .patient-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .results-section .patient-table th {
+            background: #f8fbf9;
+            color: #1a2a2a;
+            font-weight: 600;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 2px solid #e8efec;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .results-section .patient-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #eef4f1;
+            color: #3d5a4a;
+        }
+
+        .results-section .patient-table tr:hover {
+            background: #f8fbf9;
+        }
+
+        .results-section .patient-table .patient-name {
+            color: #006A4E;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .results-section .patient-table .patient-name:hover {
+            text-decoration: underline;
+        }
+
+        .results-section .patient-table .visit-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .results-section .patient-table .visit-badge.low {
+            background: #e8efec;
+            color: #3d5a4a;
+        }
+
+        .results-section .patient-table .visit-badge.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .results-section .patient-table .visit-badge.high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .results-section .patient-table .status-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .results-section .patient-table .status-badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .results-section .patient-table .status-badge.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .results-section .patient-table .view-btn {
+            padding: 4px 14px;
+            background: #006A4E;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.2s ease;
+        }
+
+        .results-section .patient-table .view-btn:hover {
+            background: #004d3a;
+        }
+
+        .results-section .no-results {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .results-section .no-results .no-results-icon {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 300;
+            color: #8aa89a;
+        }
+
+        .results-section .no-results h3 {
+            font-size: 20px;
+            color: #1a2a2a;
+            margin-bottom: 6px;
+        }
+
+        .results-section .no-results p {
+            color: #6b8a7a;
+        }
+
+        /* ========================================
+           FOOTER
+        ======================================== */
+        .patients-footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #e8efec;
+            color: #8aa89a;
+            font-size: 14px;
+        }
+
+        .patients-footer .version {
+            font-size: 12px;
+            color: #b5c9be;
+            margin-top: 4px;
+        }
+
+        /* ========================================
+           RESPONSIVE
+        ======================================== */
+        @media (max-width: 820px) {
+            .nav-container {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 12px 0;
+                gap: 12px;
+            }
+
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 4px;
+                width: 100%;
+            }
+
+            .nav-menu li a {
+                padding: 6px 16px;
+                font-size: 14px;
+            }
+
+            .filter-section .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-section .filter-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-section .filter-actions .sort-controls {
+                justify-content: center;
+            }
+
+            .filter-section .filter-actions .action-buttons {
+                width: 100%;
+            }
+
+            .filter-section .filter-actions .action-buttons .apply-filters,
+            .filter-section .filter-actions .action-buttons .reset-filters {
+                flex: 1;
+                text-align: center;
+            }
+
+            .results-section .patient-table {
+                font-size: 12px;
+            }
+
+            .results-section .patient-table th,
+            .results-section .patient-table td {
+                padding: 8px 10px;
+            }
+
+            .results-section .patient-table th:nth-child(4),
+            .results-section .patient-table td:nth-child(4),
+            .results-section .patient-table th:nth-child(8),
+            .results-section .patient-table td:nth-child(8) {
+                display: none;
+            }
+
+            .filter-summary {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-summary .clear-filters {
+                margin-left: 0;
+                text-align: center;
+            }
+
+            .patients-header h1 {
+                font-size: 26px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 0 16px;
+            }
+
+            .patients-main {
+                padding: 20px 12px;
+            }
+
+            .results-section .patient-table th:nth-child(5),
+            .results-section .patient-table td:nth-child(5),
+            .results-section .patient-table th:nth-child(7),
+            .results-section .patient-table td:nth-child(7) {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
+
+    <!-- ==========================================
+    NAVBAR
+    ========================================== -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-brand">
-                <span class="brand-icon">🏥</span>
+            <a href="{{ url_for('dashboard') }}" class="nav-brand">
+                <span class="brand-icon">+</span>
                 <span class="brand-name">Ain Atiq Health</span>
-            </div>
+            </a>
             <ul class="nav-menu">
                 <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
                 <li><a href="{{ url_for('patients') }}" class="active">Patients</a></li>
@@ -22,30 +710,34 @@
                 <li><a href="{{ url_for('logout') }}" class="logout-link">Logout</a></li>
             </ul>
             <div class="nav-user">
-                <span class="user-avatar">👨‍⚕️</span>
+                <span class="user-avatar">&#128100;</span>
                 <span class="user-role">Doctor</span>
             </div>
         </div>
     </nav>
 
+    <!-- ==========================================
+    MAIN CONTENT
+    ========================================== -->
     <main class="patients-main">
+
+        <!-- HEADER -->
         <div class="patients-header">
-            <h1>👨‍👩‍👧‍👦 Patient Directory</h1>
+            <h1>Patient Directory</h1>
             <p>Advanced filtering with 20+ search criteria</p>
         </div>
 
-        <!-- Filter Summary -->
+        <!-- FILTER SUMMARY -->
         {% if filter_summary and filter_summary.total_filters_applied > 0 %}
         <div class="filter-summary">
             <div class="summary-badge">
-                <span class="badge-icon">🔍</span>
-                <span class="badge-text">{{ filter_summary.total_filters_applied }} filters applied</span>
+                <span>{{ filter_summary.total_filters_applied }} filters applied</span>
             </div>
             <div class="active-filters">
                 {% for f in filter_summary.active_filters %}
                 <span class="filter-tag">
                     {{ f.label }}: <strong>{{ f.value }}</strong>
-                    <a href="#" onclick="removeFilter('{{ f.label }}')">✕</a>
+                    <a href="#" onclick="removeFilter('{{ f.label }}')">&#215;</a>
                 </span>
                 {% endfor %}
             </div>
@@ -53,98 +745,68 @@
         </div>
         {% endif %}
 
-        <!-- ============================================
-             FILTER SECTION - 20 FILTERS
-             ============================================ -->
+        <!-- FILTER SECTION -->
         <div class="filter-section">
             <div class="filter-header">
-                <h3>🔎 Advanced Filters</h3>
-                <button class="toggle-filters" onclick="toggleFilters()">▲ Hide Filters</button>
+                <h3>Advanced Filters</h3>
+                <button class="toggle-filters" onclick="toggleFilters()">&#9650; Hide Filters</button>
             </div>
-            
+
             <form id="filterForm" method="GET" action="{{ url_for('patients') }}">
                 <div class="filter-grid">
-                    
-                    <!-- ==========================================
-                         GROUP 1: BASIC SEARCH (Filters 1-4)
-                         ========================================== -->
+
+                    <!-- GROUP 1: BASIC SEARCH -->
                     <div class="filter-group">
-                        <label>Filter Group 1: Basic Search</label>
-                        
-                        <!-- Filter 1: Search by Name -->
+                        <label>Basic Search</label>
                         <div class="filter-field">
                             <span class="filter-number">1</span>
-                            <input type="text" name="search_name" 
-                                   placeholder="Search by name..." 
-                                   value="{{ filters.search_name }}">
+                            <input type="text" name="search_name" placeholder="Search by name..." value="{{ filters.search_name or '' }}" />
                             <small>First or last name</small>
                         </div>
-                        
-                        <!-- Filter 2: Search by Phone -->
                         <div class="filter-field">
                             <span class="filter-number">2</span>
-                            <input type="text" name="search_phone" 
-                                   placeholder="Search by phone..." 
-                                   value="{{ filters.search_phone }}">
+                            <input type="text" name="search_phone" placeholder="Search by phone..." value="{{ filters.search_phone or '' }}" />
                             <small>Phone number</small>
                         </div>
-                        
-                        <!-- Filter 3: Search by Email -->
                         <div class="filter-field">
                             <span class="filter-number">3</span>
-                            <input type="text" name="search_email" 
-                                   placeholder="Search by email..." 
-                                   value="{{ filters.search_email }}">
+                            <input type="text" name="search_email" placeholder="Search by email..." value="{{ filters.search_email or '' }}" />
                             <small>Email address</small>
                         </div>
-                        
-                        <!-- Filter 4: Search by Address -->
                         <div class="filter-field">
                             <span class="filter-number">4</span>
-                            <input type="text" name="search_address" 
-                                   placeholder="Search by address..." 
-                                   value="{{ filters.search_address }}">
+                            <input type="text" name="search_address" placeholder="Search by address..." value="{{ filters.search_address or '' }}" />
                             <small>City or street</small>
                         </div>
                     </div>
 
-                    <!-- ==========================================
-                         GROUP 2: DOCTOR FILTERS (Filters 5-9)
-                         ========================================== -->
+                    <!-- GROUP 2: DOCTOR FILTERS -->
                     <div class="filter-group">
-                        <label>Filter Group 2: Doctor Filters</label>
-                        
-                        <!-- Filter 5: Doctor ID -->
+                        <label>Doctor Filters</label>
                         <div class="filter-field">
                             <span class="filter-number">5</span>
                             <select name="doctor_id">
                                 <option value="">All Doctors</option>
                                 {% for doctor in all_doctors %}
-                                <option value="{{ doctor.doctor_id }}" 
-                                        {% if filters.doctor_id|string == doctor.doctor_id|string %}selected{% endif %}>
-                                    {{ doctor.first_name }} {{ doctor.last_name }} - {{ doctor.specialty }}
+                                <option value="{{ doctor.doctor_id }}" {% if filters.doctor_id|string == doctor.doctor_id|string %}selected{% endif %}>
+                                    Dr. {{ doctor.first_name }} {{ doctor.last_name }} - {{ doctor.specialty }}
                                 </option>
                                 {% endfor %}
                             </select>
                             <small>Select a specific doctor</small>
                         </div>
-                        
-                        <!-- Filter 6: Specialty -->
                         <div class="filter-field">
                             <span class="filter-number">6</span>
                             <select name="specialty">
                                 <option value="">All Specialties</option>
                                 {% for specialty in all_specialties %}
-                                <option value="{{ specialty.specialty }}" 
-                                        {% if filters.specialty == specialty.specialty %}selected{% endif %}>
+                                <option value="{{ specialty.specialty }}" {% if filters.specialty == specialty.specialty %}selected{% endif %}>
                                     {{ specialty.specialty }}
                                 </option>
                                 {% endfor %}
                             </select>
                             <small>Doctor's medical specialty</small>
                         </div>
-                        
-                        <!-- Filter 7: Doctor Gender -->
                         <div class="filter-field">
                             <span class="filter-number">7</span>
                             <select name="doctor_sexe">
@@ -154,45 +816,29 @@
                             </select>
                             <small>Doctor's gender</small>
                         </div>
-                        
-                        <!-- Filter 8-9: Doctor Age Range -->
                         <div class="filter-field dual">
                             <span class="filter-number">8-9</span>
                             <div class="dual-input">
-                                <input type="number" name="doctor_age_min" 
-                                       placeholder="Min age" 
-                                       value="{{ filters.doctor_age_min }}">
+                                <input type="number" name="doctor_age_min" placeholder="Min age" value="{{ filters.doctor_age_min or '' }}" />
                                 <span>to</span>
-                                <input type="number" name="doctor_age_max" 
-                                       placeholder="Max age" 
-                                       value="{{ filters.doctor_age_max }}">
+                                <input type="number" name="doctor_age_max" placeholder="Max age" value="{{ filters.doctor_age_max or '' }}" />
                             </div>
                             <small>Doctor's age range</small>
                         </div>
                     </div>
 
-                    <!-- ==========================================
-                         GROUP 3: PATIENT DEMOGRAPHICS (Filters 10-14)
-                         ========================================== -->
+                    <!-- GROUP 3: PATIENT DEMOGRAPHICS -->
                     <div class="filter-group">
-                        <label>Filter Group 3: Patient Demographics</label>
-                        
-                        <!-- Filter 10-11: Patient Age Range -->
+                        <label>Patient Demographics</label>
                         <div class="filter-field dual">
                             <span class="filter-number">10-11</span>
                             <div class="dual-input">
-                                <input type="number" name="age_min" 
-                                       placeholder="Min age" 
-                                       value="{{ filters.age_min }}">
+                                <input type="number" name="age_min" placeholder="Min age" value="{{ filters.age_min or '' }}" />
                                 <span>to</span>
-                                <input type="number" name="age_max" 
-                                       placeholder="Max age" 
-                                       value="{{ filters.age_max }}">
+                                <input type="number" name="age_max" placeholder="Max age" value="{{ filters.age_max or '' }}" />
                             </div>
                             <small>Patient's age range</small>
                         </div>
-                        
-                        <!-- Filter 12: Patient Gender -->
                         <div class="filter-field">
                             <span class="filter-number">12</span>
                             <select name="sexe">
@@ -202,63 +848,43 @@
                             </select>
                             <small>Patient's gender</small>
                         </div>
-                        
-                        <!-- Filter 13-14: Date of Birth Range -->
                         <div class="filter-field dual">
                             <span class="filter-number">13-14</span>
                             <div class="dual-input">
-                                <input type="date" name="dob_from" 
-                                       value="{{ filters.dob_from }}">
+                                <input type="date" name="dob_from" value="{{ filters.dob_from or '' }}" />
                                 <span>to</span>
-                                <input type="date" name="dob_to" 
-                                       value="{{ filters.dob_to }}">
+                                <input type="date" name="dob_to" value="{{ filters.dob_to or '' }}" />
                             </div>
                             <small>Date of birth range</small>
                         </div>
                     </div>
 
-                    <!-- ==========================================
-                         GROUP 4: PATIENT ACTIVITY (Filters 15-18)
-                         ========================================== -->
+                    <!-- GROUP 4: PATIENT ACTIVITY -->
                     <div class="filter-group">
-                        <label>Filter Group 4: Patient Activity</label>
-                        
-                        <!-- Filter 15-16: Visit Count Range -->
+                        <label>Patient Activity</label>
                         <div class="filter-field dual">
                             <span class="filter-number">15-16</span>
                             <div class="dual-input">
-                                <input type="number" name="visits_min" 
-                                       placeholder="Min visits" 
-                                       value="{{ filters.visits_min }}">
+                                <input type="number" name="visits_min" placeholder="Min visits" value="{{ filters.visits_min or '' }}" />
                                 <span>to</span>
-                                <input type="number" name="visits_max" 
-                                       placeholder="Max visits" 
-                                       value="{{ filters.visits_max }}">
+                                <input type="number" name="visits_max" placeholder="Max visits" value="{{ filters.visits_max or '' }}" />
                             </div>
                             <small>Visits in last 2 years</small>
                         </div>
-                        
-                        <!-- Filter 17-18: Admission Date Range -->
                         <div class="filter-field dual">
                             <span class="filter-number">17-18</span>
                             <div class="dual-input">
-                                <input type="date" name="admission_date_from" 
-                                       value="{{ filters.admission_date_from }}">
+                                <input type="date" name="admission_date_from" value="{{ filters.admission_date_from or '' }}" />
                                 <span>to</span>
-                                <input type="date" name="admission_date_to" 
-                                       value="{{ filters.admission_date_to }}">
+                                <input type="date" name="admission_date_to" value="{{ filters.admission_date_to or '' }}" />
                             </div>
                             <small>Admission date range</small>
                         </div>
                     </div>
 
-                    <!-- ==========================================
-                         GROUP 5: ADVANCED METRICS (Filters 19-21)
-                         ========================================== -->
+                    <!-- GROUP 5: ADVANCED METRICS -->
                     <div class="filter-group">
-                        <label>Filter Group 5: Advanced Metrics</label>
-                        
-                        <!-- Filter 19: Status -->
+                        <label>Advanced Metrics</label>
                         <div class="filter-field">
                             <span class="filter-number">19</span>
                             <select name="status">
@@ -268,8 +894,6 @@
                             </select>
                             <small>Patient status</small>
                         </div>
-                        
-                        <!-- Filter 20: Has Appointment -->
                         <div class="filter-field">
                             <span class="filter-number">20</span>
                             <select name="has_appointment">
@@ -279,8 +903,6 @@
                             </select>
                             <small>Has scheduled appointment</small>
                         </div>
-                        
-                        <!-- Filter 21: High Risk (EXTRA) -->
                         <div class="filter-field">
                             <span class="filter-number">21</span>
                             <select name="is_high_risk">
@@ -290,11 +912,10 @@
                             <small>High risk patients</small>
                         </div>
                     </div>
+
                 </div>
 
-                <!-- ==========================================
-                     SORTING & PAGINATION
-                     ========================================== -->
+                <!-- FILTER ACTIONS -->
                 <div class="filter-actions">
                     <div class="sort-controls">
                         <label>Sort by:</label>
@@ -327,15 +948,13 @@
             </form>
         </div>
 
-        <!-- ==========================================
-             RESULTS TABLE
-             ========================================== -->
+        <!-- RESULTS SECTION -->
         <div class="results-section">
             <div class="results-header">
-                <h3>📊 Results</h3>
+                <h3>Results</h3>
                 <span class="result-count">{{ patients|length }} patients found</span>
             </div>
-            
+
             {% if patients and patients|length > 0 %}
             <table class="patient-table">
                 <thead>
@@ -343,7 +962,7 @@
                         <th>ID</th>
                         <th>Name</th>
                         <th>Age</th>
-                        <th>Sexe</th>
+                        <th>Sex</th>
                         <th>Phone</th>
                         <th>Visits</th>
                         <th>Doctor</th>
@@ -385,12 +1004,19 @@
             </table>
             {% else %}
             <div class="no-results">
-                <span class="no-results-icon">🔍</span>
+                <span class="no-results-icon">&#128269;</span>
                 <h3>No patients found</h3>
                 <p>Try adjusting your filters or search criteria</p>
             </div>
             {% endif %}
         </div>
+
+        <!-- FOOTER -->
+        <div class="patients-footer">
+            <p>&copy; 2026 Ain Atiq Health Department. All rights reserved.</p>
+            <p class="version">Version 2.0.1</p>
+        </div>
+
     </main>
 
     <script>
@@ -398,14 +1024,16 @@
         // TOGGLE FILTERS VISIBILITY
         // ============================================
         function toggleFilters() {
-            const grid = document.querySelector('.filter-grid');
-            const btn = document.querySelector('.toggle-filters');
-            if (grid.style.display === 'none') {
-                grid.style.display = 'grid';
-                btn.textContent = '▲ Hide Filters';
-            } else {
-                grid.style.display = 'none';
-                btn.textContent = '▼ Show Filters';
+            var grid = document.querySelector('.filter-grid');
+            var btn = document.querySelector('.toggle-filters');
+            if (grid) {
+                if (grid.style.display === 'none') {
+                    grid.style.display = 'grid';
+                    if (btn) btn.textContent = '\u25B2 Hide Filters';
+                } else {
+                    grid.style.display = 'none';
+                    if (btn) btn.textContent = '\u25BC Show Filters';
+                }
             }
         }
 
@@ -413,8 +1041,7 @@
         // REMOVE A SPECIFIC FILTER
         // ============================================
         function removeFilter(label) {
-            // Map labels to parameter names
-            const paramMap = {
+            var paramMap = {
                 'Name Search': 'search_name',
                 'Phone Search': 'search_phone',
                 'Email Search': 'search_email',
@@ -437,11 +1064,10 @@
                 'Has Appointment': 'has_appointment',
                 'High Risk': 'is_high_risk'
             };
-            
-            const param = paramMap[label];
+
+            var param = paramMap[label];
             if (param) {
-                // Remove the parameter from URL and reload
-                const url = new URL(window.location.href);
+                var url = new URL(window.location.href);
                 url.searchParams.delete(param);
                 window.location.href = url.toString();
             }
@@ -451,28 +1077,58 @@
         // AUTO-SUBMIT ON ENTER (except text inputs)
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('filterForm');
-            const inputs = form.querySelectorAll('input, select');
-            
-            inputs.forEach(input => {
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter' && this.type !== 'text') {
-                        form.submit();
+            var form = document.getElementById('filterForm');
+            if (form) {
+                var inputs = form.querySelectorAll('input, select');
+                for (var i = 0; i < inputs.length; i++) {
+                    var input = inputs[i];
+                    if (input.type !== 'text') {
+                        input.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                form.submit();
+                            }
+                        });
                     }
-                });
-            });
+                }
+            }
         });
 
         // ============================================
         // PRESERVE FILTERS ON SORT CHANGE
         // ============================================
-        document.querySelectorAll('.sort-controls select').forEach(select => {
-            select.addEventListener('change', function() {
+        var sortSelects = document.querySelectorAll('.sort-controls select');
+        for (var i = 0; i < sortSelects.length; i++) {
+            sortSelects[i].addEventListener('change', function() {
                 document.getElementById('filterForm').submit();
             });
+        }
+
+        // ============================================
+        // KEYBOARD SHORTCUTS
+        // ============================================
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + F to focus on search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                var searchInput = document.querySelector('input[name="search_name"]');
+                if (searchInput) {
+                    e.preventDefault();
+                    searchInput.focus();
+                    searchInput.select();
+                }
+            }
+
+            // Ctrl + R to reset filters
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                var pathname = window.location.pathname;
+                if (pathname === '/patients' || pathname === '/patients/') {
+                    e.preventDefault();
+                    window.location.href = window.location.pathname;
+                }
+            }
         });
+
+        console.log('Ain Atiq Health Department - Patients page loaded');
     </script>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
