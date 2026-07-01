@@ -16,6 +16,7 @@
             </div>
             <ul class="nav-menu">
                 <li><a href="{{ url_for('dashboard') }}" class="active">Dashboard</a></li>
+                <li><a href="{{ url_for('patients') }}">Patients</a></li>
                 <li><a href="{{ url_for('about') }}">About</a></li>
                 <li><a href="{{ url_for('statistics') }}">Statistics</a></li>
                 <li><a href="{{ url_for('logout') }}" class="logout-link">Logout</a></li>
@@ -29,13 +30,11 @@
 
     <main class="dashboard-main">
         <div class="dashboard-header">
-            <h1>📊 Dashboard Overview</h1>
+            <h1>Dashboard Overview</h1>
             <p>Welcome back! Here's your hospital at a glance.</p>
         </div>
 
-        
-
-
+        <!-- Statistics Cards -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">👨‍👩‍👧‍👦</div>
@@ -46,7 +45,7 @@
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">👨‍⚕️</div>
+                <div class="stat-icon">👨</div>
                 <div class="stat-content">
                     <h3>{{ stats.male_count if stats else 0 }}</h3>
                     <p>Male Patients</p>
@@ -54,7 +53,7 @@
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">👩‍⚕️</div>
+                <div class="stat-icon">👩</div>
                 <div class="stat-content">
                     <h3>{{ stats.female_count if stats else 0 }}</h3>
                     <p>Female Patients</p>
@@ -79,9 +78,7 @@
             </div>
         </div>
 
-        
-
-
+        <!-- Charts Section -->
         <div class="charts-grid">
             <div class="chart-card">
                 <h3>Patients by Doctor</h3>
@@ -103,41 +100,252 @@
             </div>
         </div>
 
-        
-
-
+        <!-- Quick Actions -->
         <div class="recent-activity">
-            <h3>📋 Quick Actions</h3>
+            <h3>Quick Actions</h3>
             <div class="action-grid">
-                <a href="{{ url_for('statistics') }}" class="action-btn">
-                    <span>📊</span>
-                    View Full Statistics
-                </a>
-                <a href="#" class="action-btn">
+                <a href="{{ url_for('patients') }}" class="action-btn">
                     <span>👤</span>
                     Patient Directory
                 </a>
-                <a href="#" class="action-btn">
-                    <span>📅</span>
-                    Schedule Appointment
+                <a href="{{ url_for('patients') }}?status=active" class="action-btn">
+                    <span>✅</span>
+                    Active Patients
                 </a>
-                <a href="#" class="action-btn">
-                    <span>📝</span>
-                    Medical Records
+                <a href="{{ url_for('patients') }}?is_high_risk=true" class="action-btn">
+                    <span>⚠️</span>
+                    High Risk Patients
+                </a>
+                <a href="{{ url_for('statistics') }}" class="action-btn">
+                    <span>📊</span>
+                    View Statistics
                 </a>
             </div>
         </div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-       
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // ============================================
+    // PASS DATA FROM FLASK TO JAVASCRIPT
+    // Data is already JSON stringified in Flask
+    // ============================================
+    
+    // Parse the JSON strings into JavaScript objects
+    var patientsByDoctor = JSON.parse('{{ patients_by_doctor|safe }}');
+    var ageGroups = JSON.parse('{{ age_groups|safe }}');
+    var visits = JSON.parse('{{ visits|safe }}');
+    
+    console.log('Patients by Doctor:', patientsByDoctor);
+    console.log('Age Groups:', ageGroups);
+    console.log('Visits:', visits);
 
+    // ============================================
+    // HELPER FUNCTION - GET COLORS
+    // ============================================
+    function getColors(count) {
+        var colors = [
+            '#006A4E', '#00856A', '#00A38A', '#4CAF50', 
+            '#66BB6A', '#81C784', '#A5D6A7', '#C8E6C9'
+        ];
+        var result = [];
+        for (var i = 0; i < count; i++) {
+            result.push(colors[i % colors.length]);
+        }
+        return result;
+    }
+
+    // ============================================
+    // DOCTOR CHART
+    // ============================================
+    var doctorChartEl = document.getElementById('doctorChart');
+    if (doctorChartEl && patientsByDoctor && patientsByDoctor.length > 0) {
+        var labels = [];
+        var data = [];
         
-        const patientsByDoctor = {{ patients_by_doctor|tojson|safe }};
-        const ageGroups = {{ age_groups|tojson|safe }};
-        const visits = {{ visits|tojson|safe }};
+        for (var i = 0; i < patientsByDoctor.length; i++) {
+            var d = patientsByDoctor[i];
+            var firstName = d.doctor_first || '';
+            var lastName = d.doctor_last || '';
+            var fullName = (firstName + ' ' + lastName).trim() || 'Unassigned';
+            labels.push(fullName);
+            data.push(d.patient_count || 0);
+        }
+        
+        var colors = getColors(data.length);
+        
+        new Chart(doctorChartEl, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Patients',
+                    data: data,
+                    backgroundColor: colors,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                    barPercentage: 0.7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 30,
+                            font: {
+                                size: 10
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // ============================================
+    // AGE GROUP CHART
+    // ============================================
+    var ageChartEl = document.getElementById('ageChart');
+    if (ageChartEl && ageGroups && ageGroups.length > 0) {
+        var labels = [];
+        var data = [];
+        
+        for (var i = 0; i < ageGroups.length; i++) {
+            var g = ageGroups[i];
+            labels.push(g.age_group || 'Unknown');
+            data.push(g.count || 0);
+        }
+        
+        var colors = getColors(data.length);
+        
+        new Chart(ageChartEl, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 12,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+    }
+
+    // ============================================
+    // VISIT CHART
+    // ============================================
+    var visitChartEl = document.getElementById('visitChart');
+    if (visitChartEl && visits && visits.length > 0) {
+        var labels = [];
+        var data = [];
+        
+        for (var i = 0; i < visits.length; i++) {
+            var v = visits[i];
+            labels.push(v.visits_2_years || 0);
+            data.push(v.count || 0);
+        }
+        
+        new Chart(visitChartEl, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Patients',
+                    data: data,
+                    borderColor: '#006A4E',
+                    backgroundColor: 'rgba(0, 106, 78, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#006A4E',
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Visits (2 years)',
+                            font: {
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Patients',
+                            font: {
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // ============================================
+    // CONSOLE WELCOME
+    // ============================================
+    console.log('Ain Atiq Health Department - Dashboard');
+    console.log('Charts initialized successfully');
+</script>
     </script>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

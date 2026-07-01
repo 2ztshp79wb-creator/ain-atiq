@@ -16,6 +16,7 @@
             </div>
             <ul class="nav-menu">
                 <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('patients') }}">Patients</a></li>
                 <li><a href="{{ url_for('about') }}">About</a></li>
                 <li><a href="{{ url_for('statistics') }}" class="active">Statistics</a></li>
                 <li><a href="{{ url_for('logout') }}" class="logout-link">Logout</a></li>
@@ -29,22 +30,22 @@
 
     <main class="stats-main">
         <div class="stats-header">
-            <h1>📈 Patient Statistics</h1>
+            <h1>Patient Statistics</h1>
             <p>Comprehensive analytics and insights</p>
         </div>
 
-        
+        <!-- Filter Section -->
         <div class="filter-section">
-            <h3>🔍 Filter Patients</h3>
+            <h3>Filter Patients</h3>
             <div class="filter-controls">
                 <div class="filter-group">
                     <label for="filterSpecialty">Specialty</label>
                     <select id="filterSpecialty">
                         <option value="">All Specialties</option>
                         <option value="Cardiologie">Cardiologie</option>
-                        <option value="Pédiatrie">Pédiatrie</option>
-                        <option value="Orthopédie">Orthopédie</option>
-                        <option value="Gynécologie">Gynécologie</option>
+                        <option value="Pediatrie">Pediatrie</option>
+                        <option value="Orthopedie">Orthopedie</option>
+                        <option value="Gynecologie">Gynecologie</option>
                         <option value="Neurologie">Neurologie</option>
                         <option value="Ophtalmologie">Ophtalmologie</option>
                         <option value="Urologie">Urologie</option>
@@ -52,12 +53,12 @@
                         <option value="Psychiatrie">Psychiatrie</option>
                         <option value="Pneumologie">Pneumologie</option>
                         <option value="Rhumatologie">Rhumatologie</option>
-                        <option value="Hématologie">Hématologie</option>
+                        <option value="Hematologie">Hematologie</option>
                         <option value="Endocrinologie">Endocrinologie</option>
-                        <option value="Néphrologie">Néphrologie</option>
-                        <option value="Chirurgie générale">Chirurgie générale</option>
-                        <option value="Réanimation">Réanimation</option>
-                        <option value="Gastro-entérologie">Gastro-entérologie</option>
+                        <option value="Nephrologie">Nephrologie</option>
+                        <option value="Chirurgie generale">Chirurgie generale</option>
+                        <option value="Reanimation">Reanimation</option>
+                        <option value="Gastro-enterologie">Gastro-enterologie</option>
                     </select>
                 </div>
                 <div class="filter-group">
@@ -82,7 +83,7 @@
             </div>
         </div>
 
-        
+        <!-- Statistics Grid -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">👨‍👩‍👧‍👦</div>
@@ -92,14 +93,14 @@
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">👨‍⚕️</div>
+                <div class="stat-icon">👨</div>
                 <div class="stat-content">
                     <h3>{{ stats.male_count if stats else 0 }}</h3>
                     <p>Male Patients</p>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">👩‍⚕️</div>
+                <div class="stat-icon">👩</div>
                 <div class="stat-content">
                     <h3>{{ stats.female_count if stats else 0 }}</h3>
                     <p>Female Patients</p>
@@ -114,7 +115,7 @@
             </div>
         </div>
 
-        
+        <!-- Charts Grid -->
         <div class="charts-grid">
             <div class="chart-card">
                 <h3>Patients by Doctor</h3>
@@ -142,7 +143,7 @@
             </div>
         </div>
 
-        
+        <!-- Filter Results -->
         <div id="filterResults" class="filter-results" style="display:none;">
             <h3>Filtered Patients</h3>
             <div id="patientTableContainer"></div>
@@ -151,7 +152,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        
+        // Pass data from Flask to JavaScript
         const patientsByDoctor = JSON.parse('{{ patients_by_doctor|safe }}');
         const ageGroups = JSON.parse('{{ age_groups|safe }}');
         const visits = JSON.parse('{{ visits|safe }}');

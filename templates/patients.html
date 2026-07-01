@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ain Atiq Health - Patients</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="brand-icon">🏥</span>
+                <span class="brand-name">Ain Atiq Health</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('patients') }}" class="active">Patients</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('statistics') }}">Statistics</a></li>
+                <li><a href="{{ url_for('logout') }}" class="logout-link">Logout</a></li>
+            </ul>
+            <div class="nav-user">
+                <span class="user-avatar">👨‍⚕️</span>
+                <span class="user-role">Doctor</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="patients-main">
+        <div class="patients-header">
+            <h1>👨‍👩‍👧‍👦 Patient Directory</h1>
+            <p>Advanced filtering with 20+ search criteria</p>
+        </div>
+
+        <!-- Filter Summary -->
+        {% if filter_summary and filter_summary.total_filters_applied > 0 %}
+        <div class="filter-summary">
+            <div class="summary-badge">
+                <span class="badge-icon">🔍</span>
+                <span class="badge-text">{{ filter_summary.total_filters_applied }} filters applied</span>
+            </div>
+            <div class="active-filters">
+                {% for f in filter_summary.active_filters %}
+                <span class="filter-tag">
+                    {{ f.label }}: <strong>{{ f.value }}</strong>
+                    <a href="#" onclick="removeFilter('{{ f.label }}')">✕</a>
+                </span>
+                {% endfor %}
+            </div>
+            <a href="{{ url_for('patients') }}" class="clear-filters">Clear All</a>
+        </div>
+        {% endif %}
+
+        <!-- ============================================
+             FILTER SECTION - 20 FILTERS
+             ============================================ -->
+        <div class="filter-section">
+            <div class="filter-header">
+                <h3>🔎 Advanced Filters</h3>
+                <button class="toggle-filters" onclick="toggleFilters()">▲ Hide Filters</button>
+            </div>
+            
+            <form id="filterForm" method="GET" action="{{ url_for('patients') }}">
+                <div class="filter-grid">
+                    
+                    <!-- ==========================================
+                         GROUP 1: BASIC SEARCH (Filters 1-4)
+                         ========================================== -->
+                    <div class="filter-group">
+                        <label>Filter Group 1: Basic Search</label>
+                        
+                        <!-- Filter 1: Search by Name -->
+                        <div class="filter-field">
+                            <span class="filter-number">1</span>
+                            <input type="text" name="search_name" 
+                                   placeholder="Search by name..." 
+                                   value="{{ filters.search_name }}">
+                            <small>First or last name</small>
+                        </div>
+                        
+                        <!-- Filter 2: Search by Phone -->
+                        <div class="filter-field">
+                            <span class="filter-number">2</span>
+                            <input type="text" name="search_phone" 
+                                   placeholder="Search by phone..." 
+                                   value="{{ filters.search_phone }}">
+                            <small>Phone number</small>
+                        </div>
+                        
+                        <!-- Filter 3: Search by Email -->
+                        <div class="filter-field">
+                            <span class="filter-number">3</span>
+                            <input type="text" name="search_email" 
+                                   placeholder="Search by email..." 
+                                   value="{{ filters.search_email }}">
+                            <small>Email address</small>
+                        </div>
+                        
+                        <!-- Filter 4: Search by Address -->
+                        <div class="filter-field">
+                            <span class="filter-number">4</span>
+                            <input type="text" name="search_address" 
+                                   placeholder="Search by address..." 
+                                   value="{{ filters.search_address }}">
+                            <small>City or street</small>
+                        </div>
+                    </div>
+
+                    <!-- ==========================================
+                         GROUP 2: DOCTOR FILTERS (Filters 5-9)
+                         ========================================== -->
+                    <div class="filter-group">
+                        <label>Filter Group 2: Doctor Filters</label>
+                        
+                        <!-- Filter 5: Doctor ID -->
+                        <div class="filter-field">
+                            <span class="filter-number">5</span>
+                            <select name="doctor_id">
+                                <option value="">All Doctors</option>
+                                {% for doctor in all_doctors %}
+                                <option value="{{ doctor.doctor_id }}" 
+                                        {% if filters.doctor_id|string == doctor.doctor_id|string %}selected{% endif %}>
+                                    {{ doctor.first_name }} {{ doctor.last_name }} - {{ doctor.specialty }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small>Select a specific doctor</small>
+                        </div>
+                        
+                        <!-- Filter 6: Specialty -->
+                        <div class="filter-field">
+                            <span class="filter-number">6</span>
+                            <select name="specialty">
+                                <option value="">All Specialties</option>
+                                {% for specialty in all_specialties %}
+                                <option value="{{ specialty.specialty }}" 
+                                        {% if filters.specialty == specialty.specialty %}selected{% endif %}>
+                                    {{ specialty.specialty }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small>Doctor's medical specialty</small>
+                        </div>
+                        
+                        <!-- Filter 7: Doctor Gender -->
+                        <div class="filter-field">
+                            <span class="filter-number">7</span>
+                            <select name="doctor_sexe">
+                                <option value="">All Genders</option>
+                                <option value="M" {% if filters.doctor_sexe == 'M' %}selected{% endif %}>Male</option>
+                                <option value="F" {% if filters.doctor_sexe == 'F' %}selected{% endif %}>Female</option>
+                            </select>
+                            <small>Doctor's gender</small>
+                        </div>
+                        
+                        <!-- Filter 8-9: Doctor Age Range -->
+                        <div class="filter-field dual">
+                            <span class="filter-number">8-9</span>
+                            <div class="dual-input">
+                                <input type="number" name="doctor_age_min" 
+                                       placeholder="Min age" 
+                                       value="{{ filters.doctor_age_min }}">
+                                <span>to</span>
+                                <input type="number" name="doctor_age_max" 
+                                       placeholder="Max age" 
+                                       value="{{ filters.doctor_age_max }}">
+                            </div>
+                            <small>Doctor's age range</small>
+                        </div>
+                    </div>
+
+                    <!-- ==========================================
+                         GROUP 3: PATIENT DEMOGRAPHICS (Filters 10-14)
+                         ========================================== -->
+                    <div class="filter-group">
+                        <label>Filter Group 3: Patient Demographics</label>
+                        
+                        <!-- Filter 10-11: Patient Age Range -->
+                        <div class="filter-field dual">
+                            <span class="filter-number">10-11</span>
+                            <div class="dual-input">
+                                <input type="number" name="age_min" 
+                                       placeholder="Min age" 
+                                       value="{{ filters.age_min }}">
+                                <span>to</span>
+                                <input type="number" name="age_max" 
+                                       placeholder="Max age" 
+                                       value="{{ filters.age_max }}">
+                            </div>
+                            <small>Patient's age range</small>
+                        </div>
+                        
+                        <!-- Filter 12: Patient Gender -->
+                        <div class="filter-field">
+                            <span class="filter-number">12</span>
+                            <select name="sexe">
+                                <option value="">All Genders</option>
+                                <option value="M" {% if filters.sexe == 'M' %}selected{% endif %}>Male</option>
+                                <option value="F" {% if filters.sexe == 'F' %}selected{% endif %}>Female</option>
+                            </select>
+                            <small>Patient's gender</small>
+                        </div>
+                        
+                        <!-- Filter 13-14: Date of Birth Range -->
+                        <div class="filter-field dual">
+                            <span class="filter-number">13-14</span>
+                            <div class="dual-input">
+                                <input type="date" name="dob_from" 
+                                       value="{{ filters.dob_from }}">
+                                <span>to</span>
+                                <input type="date" name="dob_to" 
+                                       value="{{ filters.dob_to }}">
+                            </div>
+                            <small>Date of birth range</small>
+                        </div>
+                    </div>
+
+                    <!-- ==========================================
+                         GROUP 4: PATIENT ACTIVITY (Filters 15-18)
+                         ========================================== -->
+                    <div class="filter-group">
+                        <label>Filter Group 4: Patient Activity</label>
+                        
+                        <!-- Filter 15-16: Visit Count Range -->
+                        <div class="filter-field dual">
+                            <span class="filter-number">15-16</span>
+                            <div class="dual-input">
+                                <input type="number" name="visits_min" 
+                                       placeholder="Min visits" 
+                                       value="{{ filters.visits_min }}">
+                                <span>to</span>
+                                <input type="number" name="visits_max" 
+                                       placeholder="Max visits" 
+                                       value="{{ filters.visits_max }}">
+                            </div>
+                            <small>Visits in last 2 years</small>
+                        </div>
+                        
+                        <!-- Filter 17-18: Admission Date Range -->
+                        <div class="filter-field dual">
+                            <span class="filter-number">17-18</span>
+                            <div class="dual-input">
+                                <input type="date" name="admission_date_from" 
+                                       value="{{ filters.admission_date_from }}">
+                                <span>to</span>
+                                <input type="date" name="admission_date_to" 
+                                       value="{{ filters.admission_date_to }}">
+                            </div>
+                            <small>Admission date range</small>
+                        </div>
+                    </div>
+
+                    <!-- ==========================================
+                         GROUP 5: ADVANCED METRICS (Filters 19-21)
+                         ========================================== -->
+                    <div class="filter-group">
+                        <label>Filter Group 5: Advanced Metrics</label>
+                        
+                        <!-- Filter 19: Status -->
+                        <div class="filter-field">
+                            <span class="filter-number">19</span>
+                            <select name="status">
+                                <option value="">All Status</option>
+                                <option value="active" {% if filters.status == 'active' %}selected{% endif %}>Active</option>
+                                <option value="inactive" {% if filters.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+                            <small>Patient status</small>
+                        </div>
+                        
+                        <!-- Filter 20: Has Appointment -->
+                        <div class="filter-field">
+                            <span class="filter-number">20</span>
+                            <select name="has_appointment">
+                                <option value="">All Patients</option>
+                                <option value="true" {% if filters.has_appointment == 'true' %}selected{% endif %}>Has Appointment</option>
+                                <option value="false" {% if filters.has_appointment == 'false' %}selected{% endif %}>No Appointment</option>
+                            </select>
+                            <small>Has scheduled appointment</small>
+                        </div>
+                        
+                        <!-- Filter 21: High Risk (EXTRA) -->
+                        <div class="filter-field">
+                            <span class="filter-number">21</span>
+                            <select name="is_high_risk">
+                                <option value="">All Patients</option>
+                                <option value="true" {% if filters.is_high_risk == 'true' %}selected{% endif %}>High Risk (65+ or 20+ visits)</option>
+                            </select>
+                            <small>High risk patients</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     SORTING & PAGINATION
+                     ========================================== -->
+                <div class="filter-actions">
+                    <div class="sort-controls">
+                        <label>Sort by:</label>
+                        <select name="sort_by">
+                            <option value="last_name" {% if filters.sort_by == 'last_name' %}selected{% endif %}>Last Name</option>
+                            <option value="first_name" {% if filters.sort_by == 'first_name' %}selected{% endif %}>First Name</option>
+                            <option value="age" {% if filters.sort_by == 'age' %}selected{% endif %}>Age</option>
+                            <option value="visits_2_years" {% if filters.sort_by == 'visits_2_years' %}selected{% endif %}>Visits</option>
+                            <option value="date_of_birth" {% if filters.sort_by == 'date_of_birth' %}selected{% endif %}>Date of Birth</option>
+                            <option value="admission_date" {% if filters.sort_by == 'admission_date' %}selected{% endif %}>Admission Date</option>
+                            <option value="specialty" {% if filters.sort_by == 'specialty' %}selected{% endif %}>Specialty</option>
+                        </select>
+                        <select name="sort_direction">
+                            <option value="ASC" {% if filters.sort_direction == 'ASC' %}selected{% endif %}>Ascending</option>
+                            <option value="DESC" {% if filters.sort_direction == 'DESC' %}selected{% endif %}>Descending</option>
+                        </select>
+                        <label>Limit:</label>
+                        <select name="limit">
+                            <option value="20" {% if filters.limit == '20' %}selected{% endif %}>20</option>
+                            <option value="50" {% if filters.limit == '50' %}selected{% endif %}>50</option>
+                            <option value="100" {% if filters.limit == '100' %}selected{% endif %}>100</option>
+                            <option value="200" {% if filters.limit == '200' %}selected{% endif %}>200</option>
+                        </select>
+                    </div>
+                    <div class="action-buttons">
+                        <button type="submit" class="apply-filters">Apply Filters</button>
+                        <a href="{{ url_for('patients') }}" class="reset-filters">Reset</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- ==========================================
+             RESULTS TABLE
+             ========================================== -->
+        <div class="results-section">
+            <div class="results-header">
+                <h3>📊 Results</h3>
+                <span class="result-count">{{ patients|length }} patients found</span>
+            </div>
+            
+            {% if patients and patients|length > 0 %}
+            <table class="patient-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Sexe</th>
+                        <th>Phone</th>
+                        <th>Visits</th>
+                        <th>Doctor</th>
+                        <th>Specialty</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in patients %}
+                    <tr>
+                        <td>{{ patient.patient_id }}</td>
+                        <td>
+                            <a href="{{ url_for('patient_detail', patient_id=patient.patient_id) }}" class="patient-name">
+                                {{ patient.first_name }} {{ patient.last_name }}
+                            </a>
+                        </td>
+                        <td>{{ patient.age }}</td>
+                        <td>{{ patient.sexe }}</td>
+                        <td>{{ patient.phone }}</td>
+                        <td>
+                            <span class="visit-badge {% if patient.visits_2_years > 10 %}high{% elif patient.visits_2_years > 5 %}medium{% else %}low{% endif %}">
+                                {{ patient.visits_2_years }}
+                            </span>
+                        </td>
+                        <td>{{ patient.doctor_first or '' }} {{ patient.doctor_last or '' }}</td>
+                        <td>{{ patient.specialty or '' }}</td>
+                        <td>
+                            <span class="status-badge {% if patient.status == 'active' %}active{% else %}inactive{% endif %}">
+                                {{ patient.status or 'active' }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('patient_detail', patient_id=patient.patient_id) }}" class="view-btn">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-results">
+                <span class="no-results-icon">🔍</span>
+                <h3>No patients found</h3>
+                <p>Try adjusting your filters or search criteria</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <script>
+        // ============================================
+        // TOGGLE FILTERS VISIBILITY
+        // ============================================
+        function toggleFilters() {
+            const grid = document.querySelector('.filter-grid');
+            const btn = document.querySelector('.toggle-filters');
+            if (grid.style.display === 'none') {
+                grid.style.display = 'grid';
+                btn.textContent = '▲ Hide Filters';
+            } else {
+                grid.style.display = 'none';
+                btn.textContent = '▼ Show Filters';
+            }
+        }
+
+        // ============================================
+        // REMOVE A SPECIFIC FILTER
+        // ============================================
+        function removeFilter(label) {
+            // Map labels to parameter names
+            const paramMap = {
+                'Name Search': 'search_name',
+                'Phone Search': 'search_phone',
+                'Email Search': 'search_email',
+                'Address Search': 'search_address',
+                'Doctor ID': 'doctor_id',
+                'Specialty': 'specialty',
+                'Doctor Gender': 'doctor_sexe',
+                'Doctor Min Age': 'doctor_age_min',
+                'Doctor Max Age': 'doctor_age_max',
+                'Min Age': 'age_min',
+                'Max Age': 'age_max',
+                'Gender': 'sexe',
+                'Birth From': 'dob_from',
+                'Birth To': 'dob_to',
+                'Min Visits': 'visits_min',
+                'Max Visits': 'visits_max',
+                'Admission From': 'admission_date_from',
+                'Admission To': 'admission_date_to',
+                'Status': 'status',
+                'Has Appointment': 'has_appointment',
+                'High Risk': 'is_high_risk'
+            };
+            
+            const param = paramMap[label];
+            if (param) {
+                // Remove the parameter from URL and reload
+                const url = new URL(window.location.href);
+                url.searchParams.delete(param);
+                window.location.href = url.toString();
+            }
+        }
+
+        // ============================================
+        // AUTO-SUBMIT ON ENTER (except text inputs)
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('filterForm');
+            const inputs = form.querySelectorAll('input, select');
+            
+            inputs.forEach(input => {
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && this.type !== 'text') {
+                        form.submit();
+                    }
+                });
+            });
+        });
+
+        // ============================================
+        // PRESERVE FILTERS ON SORT CHANGE
+        // ============================================
+        document.querySelectorAll('.sort-controls select').forEach(select => {
+            select.addEventListener('change', function() {
+                document.getElementById('filterForm').submit();
+            });
+        });
+    </script>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
