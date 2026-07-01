@@ -6,7 +6,7 @@ from database import db
 from audit import AuditLogger
 
 app = Flask(__name__)
-app.secret_key = os.getenv('a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6duction')
+app.secret_key = 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6'
 
 audit = AuditLogger(db)
 
