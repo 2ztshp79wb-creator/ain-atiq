@@ -135,26 +135,16 @@ class Database:
         # ============================================
         # FILTER 2: SEARCH BY PHONE
         # ============================================
-        if filters.get('search_phone'):
-            search = f"%{filters['search_phone']}%"
-            query += " AND p.phone LIKE %s"
-            params.append(search)
         
         # ============================================
         # FILTER 3: SEARCH BY EMAIL
         # ============================================
-        if filters.get('search_email'):
-            search = f"%{filters['search_email']}%"
-            query += " AND p.email LIKE %s"
-            params.append(search)
+
         
         # ============================================
         # FILTER 4: SEARCH BY ADDRESS
         # ============================================
-        if filters.get('search_address'):
-            search = f"%{filters['search_address']}%"
-            query += " AND p.address LIKE %s"
-            params.append(search)
+
         
         # ============================================
         # FILTER 5: DOCTOR ID (EXACT MATCH)
@@ -173,19 +163,11 @@ class Database:
         # ============================================
         # FILTER 7: DOCTOR GENDER
         # ============================================
-        if filters.get('doctor_sexe'):
-            query += " AND d.sexe = %s"
-            params.append(filters['doctor_sexe'])
-        
+
         # ============================================
         # FILTER 8-9: DOCTOR AGE RANGE
         # ============================================
-        if filters.get('doctor_age_min'):
-            query += " AND d.age >= %s"
-            params.append(int(filters['doctor_age_min']))
-        if filters.get('doctor_age_max'):
-            query += " AND d.age <= %s"
-            params.append(int(filters['doctor_age_max']))
+
         
         # ============================================
         # FILTER 10-11: PATIENT AGE RANGE
@@ -207,12 +189,7 @@ class Database:
         # ============================================
         # FILTER 13-14: DATE OF BIRTH RANGE
         # ============================================
-        if filters.get('dob_from'):
-            query += " AND p.date_of_birth >= %s"
-            params.append(filters['dob_from'])
-        if filters.get('dob_to'):
-            query += " AND p.date_of_birth <= %s"
-            params.append(filters['dob_to'])
+
         
         # ============================================
         # FILTER 15-16: VISIT COUNT RANGE
@@ -227,19 +204,12 @@ class Database:
         # ============================================
         # FILTER 17-18: ADMISSION DATE RANGE
         # ============================================
-        if filters.get('admission_date_from'):
-            query += " AND p.admission_date >= %s"
-            params.append(filters['admission_date_from'])
-        if filters.get('admission_date_to'):
-            query += " AND p.admission_date <= %s"
-            params.append(filters['admission_date_to'])
+
         
         # ============================================
         # FILTER 19: STATUS
         # ============================================
-        if filters.get('status'):
-            query += " AND p.status = %s"
-            params.append(filters['status'])
+
         
         # ============================================
         # FILTER 20: HAS APPOINTMENT
@@ -304,24 +274,13 @@ class Database:
         
         filter_map = {
             'search_name': ('Name Search', filters.get('search_name')),
-            'search_phone': ('Phone Search', filters.get('search_phone')),
-            'search_email': ('Email Search', filters.get('search_email')),
-            'search_address': ('Address Search', filters.get('search_address')),
             'doctor_id': ('Doctor ID', filters.get('doctor_id')),
             'specialty': ('Specialty', filters.get('specialty')),
-            'doctor_sexe': ('Doctor Gender', filters.get('doctor_sexe')),
-            'doctor_age_min': ('Doctor Min Age', filters.get('doctor_age_min')),
-            'doctor_age_max': ('Doctor Max Age', filters.get('doctor_age_max')),
             'age_min': ('Min Age', filters.get('age_min')),
             'age_max': ('Max Age', filters.get('age_max')),
             'sexe': ('Gender', filters.get('sexe')),
-            'dob_from': ('Birth From', filters.get('dob_from')),
-            'dob_to': ('Birth To', filters.get('dob_to')),
             'visits_min': ('Min Visits', filters.get('visits_min')),
             'visits_max': ('Max Visits', filters.get('visits_max')),
-            'admission_date_from': ('Admission From', filters.get('admission_date_from')),
-            'admission_date_to': ('Admission To', filters.get('admission_date_to')),
-            'status': ('Status', filters.get('status')),
             'has_appointment': ('Has Appointment', filters.get('has_appointment')),
             'is_high_risk': ('High Risk', filters.get('is_high_risk'))
         }
@@ -463,6 +422,201 @@ class Database:
         if self.connection:
             self.connection.close()
             print("Connection closed")
+
+# ============================================
+# GRAPH DATA METHODS
+# ============================================
+
+    def get_age_distribution(self):
+        """Age distribution histogram data"""
+        query = """
+            SELECT 
+                CASE 
+                    WHEN age < 18 THEN '0-17'
+                    WHEN age BETWEEN 18 AND 30 THEN '18-30'
+                    WHEN age BETWEEN 31 AND 50 THEN '31-50'
+                    WHEN age BETWEEN 51 AND 65 THEN '51-65'
+                    ELSE '65+'
+                END as age_group,
+                COUNT(*) as count
+            FROM patients
+            GROUP BY age_group
+            ORDER BY MIN(age)
+        """
+        return self.execute_query(query)
+
+    def get_gender_distribution(self):
+        """Gender distribution pie chart data"""
+        query = """
+            SELECT 
+                sexe,
+                COUNT(*) as count
+            FROM patients
+            GROUP BY sexe
+        """
+        return self.execute_query(query)
+
+    def get_age_gender_stacked(self):
+        """Age vs Gender stacked bar chart data"""
+        query = """
+            SELECT 
+                CASE 
+                    WHEN age < 18 THEN '0-17'
+                    WHEN age BETWEEN 18 AND 30 THEN '18-30'
+                    WHEN age BETWEEN 31 AND 50 THEN '31-50'
+                    WHEN age BETWEEN 51 AND 65 THEN '51-65'
+                    ELSE '65+'
+                END as age_group,
+                SUM(CASE WHEN sexe = 'M' THEN 1 ELSE 0 END) as male,
+                SUM(CASE WHEN sexe = 'F' THEN 1 ELSE 0 END) as female
+            FROM patients
+            GROUP BY age_group
+            ORDER BY MIN(age)
+        """
+        return self.execute_query(query)
+
+    def get_patients_by_doctor(self):
+        """Patients by doctor bar chart data"""
+        query = """
+            SELECT 
+                d.doctor_id,
+                d.first_name,
+                d.last_name,
+                COUNT(p.patient_id) as patient_count
+            FROM doctors d
+            LEFT JOIN patients p ON d.doctor_id = p.doctor_id
+            GROUP BY d.doctor_id
+            ORDER BY patient_count DESC
+        """
+        return self.execute_query(query)
+
+    def get_patients_by_specialty(self):
+        """Patients by specialty bar chart data"""
+        query = """
+            SELECT 
+                d.specialty,
+                COUNT(p.patient_id) as patient_count
+            FROM doctors d
+            LEFT JOIN patients p ON d.doctor_id = p.doctor_id
+            GROUP BY d.specialty
+            ORDER BY patient_count DESC
+        """
+        return self.execute_query(query)
+
+    def get_visit_distribution(self):
+        """Visit distribution histogram data"""
+        query = """
+            SELECT 
+                visits_2_years,
+                COUNT(*) as count
+            FROM patients
+            GROUP BY visits_2_years
+            ORDER BY visits_2_years
+        """
+        return self.execute_query(query)
+
+    def get_high_risk_distribution(self):
+        """High risk vs normal patients donut chart data"""
+        query = """
+            SELECT 
+                CASE 
+                    WHEN age >= 65 OR visits_2_years >= 20 THEN 'High Risk'
+                    ELSE 'Normal'
+                END as risk_category,
+                COUNT(*) as count
+            FROM patients
+            GROUP BY risk_category
+        """
+        return self.execute_query(query)
+
+    def get_visits_by_age_group(self):
+        """Average visits per age group line chart data"""
+        query = """
+            SELECT 
+                CASE 
+                    WHEN age < 18 THEN '0-17'
+                    WHEN age BETWEEN 18 AND 30 THEN '18-30'
+                    WHEN age BETWEEN 31 AND 50 THEN '31-50'
+                    WHEN age BETWEEN 51 AND 65 THEN '51-65'
+                    ELSE '65+'
+                END as age_group,
+                AVG(visits_2_years) as avg_visits
+            FROM patients
+            GROUP BY age_group
+            ORDER BY MIN(age)
+        """
+        return self.execute_query(query)
+
+    def get_appointment_status(self):
+        """Appointment status pie chart data"""
+        query = """
+            SELECT 
+                status,
+                COUNT(*) as count
+            FROM appointments
+            GROUP BY status
+        """
+        return self.execute_query(query)
+
+    def get_appointments_by_doctor(self):
+        """Appointments by doctor bar chart data"""
+        query = """
+            SELECT 
+                d.first_name,
+                d.last_name,
+                COUNT(a.appointment_id) as appointment_count
+            FROM doctors d
+            LEFT JOIN appointments a ON d.doctor_id = a.doctor_id
+            GROUP BY d.doctor_id
+            ORDER BY appointment_count DESC
+        """
+        return self.execute_query(query)
+
+    def get_appointments_by_month(self):
+        """Appointments by month line chart data"""
+        query = """
+            SELECT 
+                DATE_FORMAT(appointment_date, '%Y-%m') as month,
+                COUNT(*) as appointment_count
+            FROM appointments
+            GROUP BY DATE_FORMAT(appointment_date, '%Y-%m')
+            ORDER BY month
+        """
+        return self.execute_query(query)
+
+    def get_doctor_performance(self):
+        """Doctor performance radar chart data"""
+        query = """
+            SELECT 
+                d.first_name,
+                d.last_name,
+                COUNT(DISTINCT p.patient_id) as total_patients,
+                SUM(p.visits_2_years) as total_visits,
+                COUNT(a.appointment_id) as total_appointments
+            FROM doctors d
+            LEFT JOIN patients p ON d.doctor_id = p.doctor_id
+            LEFT JOIN appointments a ON d.doctor_id = a.doctor_id
+            GROUP BY d.doctor_id
+            ORDER BY total_patients DESC
+            LIMIT 5
+        """
+        return self.execute_query(query)
+
+    def get_patient_summary(self):
+        """Patient demographics summary dashboard data"""
+        query = """
+            SELECT 
+                COUNT(*) as total_patients,
+                AVG(age) as avg_age,
+                MIN(age) as min_age,
+                MAX(age) as max_age,
+                SUM(CASE WHEN sexe = 'M' THEN 1 ELSE 0 END) as male_count,
+                SUM(CASE WHEN sexe = 'F' THEN 1 ELSE 0 END) as female_count,
+                AVG(visits_2_years) as avg_visits
+            FROM patients
+        """
+        return self.execute_query(query)
+
 
 # ============================================
 # CREATE DATABASE INSTANCE

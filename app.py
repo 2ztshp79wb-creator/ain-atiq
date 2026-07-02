@@ -88,30 +88,30 @@ def patients():
     filters = {
         # 1. BASIC SEARCH
         'search_name': request.args.get('search_name', ''),
-        'search_phone': request.args.get('search_phone', ''),
-        'search_email': request.args.get('search_email', ''),
-        'search_address': request.args.get('search_address', ''),
+        # 'search_phone': request.args.get('search_phone', ''),
+        # 'search_email': request.args.get('search_email', ''),
+        # 'search_address': request.args.get('search_address', ''),
         
         # 2. DOCTOR & SPECIALTY
         'doctor_id': request.args.get('doctor_id'),
         'specialty': request.args.get('specialty'),
-        'doctor_sexe': request.args.get('doctor_sexe'),
-        'doctor_age_min': request.args.get('doctor_age_min'),
-        'doctor_age_max': request.args.get('doctor_age_max'),
+        # 'doctor_sexe': request.args.get('doctor_sexe'),
+        # 'doctor_age_min': request.args.get('doctor_age_min'),
+        # 'doctor_age_max': request.args.get('doctor_age_max'),
         
         # 3. PATIENT DEMOGRAPHICS
         'age_min': request.args.get('age_min'),
         'age_max': request.args.get('age_max'),
         'sexe': request.args.get('sexe'),
-        'dob_from': request.args.get('dob_from'),
-        'dob_to': request.args.get('dob_to'),
+        #'dob_from': request.args.get('dob_from'),
+        #'dob_to': request.args.get('dob_to'),
         
         # 4. PATIENT ACTIVITY
         'visits_min': request.args.get('visits_min'),
         'visits_max': request.args.get('visits_max'),
-        'admission_date_from': request.args.get('admission_date_from'),
-        'admission_date_to': request.args.get('admission_date_to'),
-        'status': request.args.get('status'),
+        #'admission_date_from': request.args.get('admission_date_from'),
+        #'admission_date_to': request.args.get('admission_date_to'),
+        #'status': request.args.get('status'),
         
         # 5. ADVANCED METRICS
         'has_appointment': request.args.get('has_appointment'),
@@ -178,34 +178,62 @@ def statistics():
     if 'doctor_id' not in session:
         return redirect(url_for('login'))
     
-    stats = db.get_patient_statistics()
+    # Get all data for graphs
+    age_distribution = db.get_age_distribution()
+    gender_distribution = db.get_gender_distribution()
+    age_gender_stacked = db.get_age_gender_stacked()
     patients_by_doctor = db.get_patients_by_doctor()
-    age_groups = db.get_patients_by_age_group()
-    visits = db.get_visits_distribution()
     patients_by_specialty = db.get_patients_by_specialty()
-    demographics = db.get_complete_demographics()
+    visit_distribution = db.get_visit_distribution()
+    high_risk_distribution = db.get_high_risk_distribution()
+    visits_by_age_group = db.get_visits_by_age_group()
+    appointment_status = db.get_appointment_status()
+    appointments_by_doctor = db.get_appointments_by_doctor()
+    appointments_by_month = db.get_appointments_by_month()
     doctor_performance = db.get_doctor_performance()
+    patient_summary = db.get_patient_summary()
     
     # Ensure data is not None
+    if age_distribution is None:
+        age_distribution = []
+    if gender_distribution is None:
+        gender_distribution = []
+    if age_gender_stacked is None:
+        age_gender_stacked = []
     if patients_by_doctor is None:
         patients_by_doctor = []
-    if age_groups is None:
-        age_groups = []
-    if visits is None:
-        visits = []
     if patients_by_specialty is None:
         patients_by_specialty = []
+    if visit_distribution is None:
+        visit_distribution = []
+    if high_risk_distribution is None:
+        high_risk_distribution = []
+    if visits_by_age_group is None:
+        visits_by_age_group = []
+    if appointment_status is None:
+        appointment_status = []
+    if appointments_by_doctor is None:
+        appointments_by_doctor = []
+    if appointments_by_month is None:
+        appointments_by_month = []
     if doctor_performance is None:
         doctor_performance = []
     
     return render_template('statistics.html',
-                         stats=stats[0] if stats else None,
+                         age_distribution=json.dumps(age_distribution),
+                         gender_distribution=json.dumps(gender_distribution),
+                         age_gender_stacked=json.dumps(age_gender_stacked),
                          patients_by_doctor=json.dumps(patients_by_doctor),
-                         age_groups=json.dumps(age_groups),
-                         visits=json.dumps(visits),
                          patients_by_specialty=json.dumps(patients_by_specialty),
-                         demographics=demographics[0] if demographics else None,
-                         doctor_performance=doctor_performance)
+                         visit_distribution=json.dumps(visit_distribution),
+                         high_risk_distribution=json.dumps(high_risk_distribution),
+                         visits_by_age_group=json.dumps(visits_by_age_group),
+                         appointment_status=json.dumps(appointment_status),
+                         appointments_by_doctor=json.dumps(appointments_by_doctor),
+                         appointments_by_month=json.dumps(appointments_by_month),
+                         doctor_performance=json.dumps(doctor_performance),
+                         patient_summary=patient_summary[0] if patient_summary else None)
+
 
 
 # ============================================
